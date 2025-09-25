@@ -65,19 +65,6 @@ menu_data = {
             {"id": 26, "name": "Choy Toxno", "price": 35000, "description": "Maxsus choy"},
             {"id": 27, "name": "Milkshake", "price": 30000, "description": "Shokoladli milksheyk"}
         ]
-    },
-    "boshqa_taomlar": {
-        "name": "🍱 Boshqa Taomlar",
-        "products": [
-            {"id": 28, "name": "Gunkun tunets", "price": 30000, "description": "Tunets gunkan"},
-            {"id": 29, "name": "Gunkun losos", "price": 24000, "description": "Losos gunkan"},
-            {"id": 30, "name": "Mini roll losos", "price": 24000, "description": "Kichik losos roll"},
-            {"id": 31, "name": "Susi tunets", "price": 25000, "description": "Tunets sushi"},
-            {"id": 32, "name": "Krab sendvich", "price": 35000, "description": "Krab sendvich"},
-            {"id": 33, "name": "Slirovye sharik", "price": 22000, "description": "Sir sharik"},
-            {"id": 34, "name": "Gambuger", "price": 39000, "description": "Gamburger"},
-            {"id": 35, "name": "Miks pizza", "price": 95000, "description": "Aralash pizza"}
-        ]
     }
 }
 
@@ -98,21 +85,71 @@ def send_message(chat_id, text, keyboard=None):
     except Exception as e:
         print(f"Xabar yuborishda xato: {e}")
 
+def request_contact(chat_id):
+    keyboard = {
+        "keyboard": [[{"text": "📞 Telefon raqamni yuborish", "request_contact": True}]],
+        "resize_keyboard": True
+    }
+    send_message(chat_id, "📞 <b>Telefon raqamingizni yuboring:</b>\n\nPastdagi tugmani bosing yoki +998... formatida yozing:", keyboard)
+
+def request_location(chat_id):
+    keyboard = {
+        "keyboard": [[{"text": "📍 Lokatsiyani yuborish", "request_location": True}]],
+        "resize_keyboard": True
+    }
+    send_message(chat_id, "📍 <b>Lokatsiyangizni yuboring:</b>\n\nPastdagi tugmani bosing yoki manzil yozing:", keyboard)
+
 def main_menu():
     return {
         "keyboard": [
             ["🍣 Menyu", "🛒 Savatcha"],
-            ["📞 Aloqa", "ℹ️ Ma'lumot"]
+            ["📞 Aloqa", "⭐ Bizni baholash"],
+            ["📢 Aksiyalar", "ℹ️ Ma'lumot"]
         ],
         "resize_keyboard": True
     }
 
 def categories_menu():
     keyboard = []
+    row = []
     for category_key, category_data in menu_data.items():
-        keyboard.append([category_data["name"]])
-    keyboard.append(["⬅️ Orqaga"])
+        row.append(category_data["name"])
+        if len(row) == 2:
+            keyboard.append(row)
+            row = []
+    if row:
+        keyboard.append(row)
+    keyboard.append(["🛒 Savatcha", "⬅️ Orqaga"])
     return {"keyboard": keyboard, "resize_keyboard": True}
+
+def products_menu(category_key):
+    products = menu_data[category_key]["products"]
+    keyboard = []
+    for product in products:
+        btn_text = f"{product['name']} - {product['price']:,} so'm"
+        keyboard.append([btn_text])
+    
+    keyboard.append(["🛒 Savatcha", "📥 Boshqa kategoriya"])
+    keyboard.append(["⬅️ Bosh menyu"])
+    return {"keyboard": keyboard, "resize_keyboard": True}
+
+def cart_menu():
+    return {
+        "keyboard": [
+            ["✅ Buyurtma berish", "🔄 Savatchani tozalash"],
+            ["✏️ Mahsulot o'zgartirish", "📥 Menyuga qaytish"],
+            ["⬅️ Bosh menyu"]
+        ],
+        "resize_keyboard": True
+    }
+
+def confirmation_menu():
+    return {
+        "keyboard": [
+            ["✅ HA, buyurtma berish", "❌ BEKOR qilish"]
+        ],
+        "resize_keyboard": True
+    }
 
 def show_category(chat_id, category_key):
     category = menu_data[category_key]
@@ -123,12 +160,189 @@ def show_category(chat_id, category_key):
         text += f"💰 {product['price']:,} so'm\n"
         text += f"📝 {product['description']}\n\n"
     
-    text += "Tanlang:"
-    send_message(chat_id, text, main_menu())
+    text += "🛒 <b>Mahsulot tanlash uchun pastdagi tugmalardan birini bosing!</b>"
+    send_message(chat_id, text, products_menu(category_key))
+
+def add_to_cart(chat_id, product_name):
+    product = None
+    for category in menu_data.values():
+        for p in category["products"]:
+            if p["name"] in product_name:
+                product = p
+                break
+        if product:
+            break
+    
+    if product:
+        if chat_id not in user_data:
+            user_data[chat_id] = {"cart": [], "name": "Mijoz"}
+        
+        user_data[chat_id]["cart"].append(product)
+        
+        # Foydalanuvchiga xabar
+        cart_count = len(user_data[chat_id]["cart"])
+        send_message(chat_id, f"✅ <b>{product['name']}</b> savatchaga qo'shildi!\n\n🛒 Savatchada: {cart_count} ta mahsulot", main_menu())
+        
+        # Adminga xabar
+        user_name = user_data[chat_id]["name"]
+        admin_msg = f"🛒 <b>Yangi mahsulot qo'shildi:</b>\n👤 {user_name} (ID: {chat_id})\n🍣 {product['name']}\n💰 {product['price']:,} so'm\n⏰ {datetime.now().strftime('%H:%M')}"
+        send_message(ADMIN_ID, admin_msg)
+    else:
+        send_message(chat_id, "❌ Mahsulot topilmadi. Iltimos, qaytadan urinib ko'ring.")
+
+def show_cart(chat_id):
+    if chat_id not in user_data or "cart" not in user_data[chat_id] or not user_data[chat_id]["cart"]:
+        send_message(chat_id, "🛒 <b>Savatchangiz bo'sh</b>\n\nMenyudan mahsulot tanlang!", main_menu())
+        return
+    
+    cart = user_data[chat_id]["cart"]
+    text = "<b>🛒 Sizning savatchangiz</b>\n\n"
+    total = 0
+    
+    for i, product in enumerate(cart, 1):
+        text += f"{i}. {product['name']} - {product['price']:,} so'm\n"
+        total += product["price"]
+    
+    text += f"\n<b>💰 Jami: {total:,} so'm</b>"
+    text += f"\n\n⏰ Yetkazish vaqti: <b>30-45 daqiqa</b>"
+    text += f"\n🚚 Yetkazib berish: <b>TEKIN</b>"
+    
+    send_message(chat_id, text, cart_menu())
+
+def start_order(chat_id):
+    if chat_id not in user_data or "cart" not in user_data[chat_id] or not user_data[chat_id]["cart"]:
+        send_message(chat_id, "❌ Savatchangiz bo'sh. Avval mahsulot tanlang!", main_menu())
+        return
+    
+    user_data[chat_id]["order_stage"] = "waiting_contact"
+    request_contact(chat_id)
+
+def process_order(chat_id, contact, location):
+    if chat_id not in user_data or "cart" not in user_data[chat_id]:
+        return
+    
+    cart = user_data[chat_id]["cart"]
+    total = sum(product["price"] for product in cart)
+    order_id = int(time.time())
+    user_name = user_data[chat_id].get("name", "Mijoz")
+    
+    # Mijozga xabar
+    order_text = f"""
+🎉 <b>BUYURTMA QABUL QILINDI!</b>
+
+🆔 Buyurtma raqami: <b>#{order_id}</b>
+👤 Ism: <b>{user_name}</b>
+📞 Telefon: <b>{contact}</b>
+📍 Manzil: <b>{location}</b>
+⏰ Yetkazish: <b>30-45 daqiqa</b>
+🕒 Buyurtma vaqti: <b>{datetime.now().strftime('%H:%M')}</b>
+
+<b>Buyurtma tafsilotlari:</b>
+"""
+    
+    for product in cart:
+        order_text += f"• {product['name']} - {product['price']:,} so'm\n"
+    
+    order_text += f"\n<b>💰 JAMI: {total:,} so'm</b>"
+    order_text += f"\n\n📞 <b>Aloqa: +998901234567</b>"
+    order_text += f"\n⏳ <b>Buyurtma tayyor bo'lishi: {((datetime.now() + timedelta(minutes=40)).strftime('%H:%M'))}</b>"
+    
+    send_message(chat_id, order_text, main_menu())
+    
+    # Adminga to'liq xabar
+    admin_text = f"""
+🚨 <b>YANGI BUYURTMA!</b>
+
+🆔 #{order_id}
+👤 {user_name} (ID: {chat_id})
+📞 {contact}
+📍 {location}
+🕒 {datetime.now().strftime('%H:%M:%S')}
+💰 {total:,} so'm
+
+<b>Mahsulotlar:</b>
+"""
+    
+    for product in cart:
+        admin_text += f"• {product['name']} - {product['price']:,} so'm\n"
+    
+    admin_text += f"\n⏳ Tayyor bo'lishi: {(datetime.now() + timedelta(minutes=40)).strftime('%H:%M')}"
+    
+    send_message(ADMIN_ID, admin_text)
+    
+    # Savatchani tozalash
+    user_data[chat_id]["cart"] = []
+    user_data[chat_id]["order_stage"] = None
+
+def show_contact(chat_id):
+    contact_text = """
+📞 <b>Aloqa ma'lumotlari</b>
+
+🏮 <b>Tokio Sushi</b>
+📍 Qarshi shahar
+📱 +998947126030
+🕒 11:00 - 02:00
+🚚 Yetkazish: 30-45 daqiqa
+
+<b>Ijtimoiy tarmoqlar:</b>
+📸 Instagram: @https://www.instagram.com/tokio_sushi_bar_karshi?igsh=MTJjNTJyeDZvM3FkaA==
+📱 Telegram: @tokio_sushi_support
+🌐 Website: tokiosushi.uz
+
+<b>Qo'llab-quvvatlash:</b>
+📞 +998947126030 (24/7)
+💬 @tokio_support_bot
+    """
+    send_message(chat_id, contact_text, main_menu())
+
+def show_info(chat_id):
+    info_text = """
+ℹ️ <b>Tokio Sushi haqida</b>
+
+🌟 <b>Bizning afzalliklarimiz:</b>
+• 🚚 30-45 daqiqada yetkazamiz
+• 💰 Minimal buyurtma: 50,000 so'm
+• 🕒 11:00-02:00 ishlaymiz
+• 🌱 Yangi ingredientlar
+• 👨‍🍳 Professional oshpazlar
+
+💳 <b>To'lov usullari:</b>
+• Naqd pul
+• Click
+• Payme
+• Bank kartasi
+
+📞 <b>Qo'llab-quvvatlash:</b>
++998947126030
+@tokio_sushi_support
+    """
+    send_message(chat_id, info_text, main_menu())
+
+def show_actions(chat_id):
+    actions_text = """
+📢 <b>Aksiyalar va chegirmalar</b>
+
+🎉 <b>Hozirgi aksiyalar:</b>
+• 💰 10% chegirma - 100,000 so'mdan ortiq buyurtmalar
+• 🎁 Bepich ichimlik - 150,000 so'mdan ortiq buyurtmalar
+• 👥 Do'stingizni taklif qiling - 15% chegirma
+
+🏆 <b>Bonus tizimi:</b>
+• Har 50,000 so'm - 1 ball
+• 10 ball - 10% chegirma
+• 20 ball - bepul desert
+
+📱 <b>Ilovamizni yuklab oling:</b>
+• Android: play.google.com/tokiosushi
+• iOS: apps.apple.com/tokiosushi
+    """
+    send_message(chat_id, actions_text, main_menu())
 
 def main():
-    print("🚀 Tokio Sushi Bot ishga tushdi!")
+    print("🚀 Tokio Sushi Pro Bot ishga tushdi!")
     print(f"👑 Admin: {ADMIN_ID}")
+    print("📞 Support: +998947126030")
+    print("⏰ Yetkazish: 30-45 daqiqa")
     
     last_update_id = None
     while True:
@@ -146,68 +360,97 @@ def main():
                         
                         if "message" in update:
                             chat_id = update["message"]["chat"]["id"]
-                            text = update["message"].get("text", "")
-                            user_name = update["message"]["from"].get("first_name", "Mijoz")
+                            message_data = update["message"]
+                            
+                            # Kontakt qabul qilish
+                            if "contact" in message_data:
+                                if chat_id in user_data and user_data[chat_id].get("order_stage") == "waiting_contact":
+                                    phone = message_data["contact"].get("phone_number", "")
+                                    user_data[chat_id]["contact"] = phone
+                                    user_data[chat_id]["order_stage"] = "waiting_location"
+                                    request_location(chat_id)
+                                continue
+                            
+                            # Lokatsiya qabul qilish
+                            if "location" in message_data:
+                                if chat_id in user_data and user_data[chat_id].get("order_stage") == "waiting_location":
+                                    location = message_data["location"]
+                                    loc_text = f"Lat: {location['latitude']}, Lon: {location['longitude']}"
+                                    process_order(chat_id, user_data[chat_id]["contact"], loc_text)
+                                    user_data[chat_id]["order_stage"] = None
+                                continue
+                            
+                            text = message_data.get("text", "")
+                            user_name = message_data["from"].get("first_name", "Mijoz")
                             
                             if chat_id not in user_data:
                                 user_data[chat_id] = {"cart": [], "name": user_name}
                                 print(f"👤 Yangi foydalanuvchi: {user_name} ({chat_id})")
                             
+                            # Asosiy menyu
                             if text == "/start":
                                 welcome_text = f"""
-🏮 <b>Tokio Sushi</b> ga xush kelibsiz, {user_name}!
+🏮 <b>Tokio Sushi</b> ga xush kelibsiz, {user_name}! 🎌
 
-🚚 30-45 daqiqada yetkazamiz
-💵 Minimal buyurtma: 50,000 so'm
-🕒 Ish vaqti: 11:00-02:00
-📞 +998947126030
+• 🚚 30-45 daqiqada yetkazamiz
+• 💰 Minimal buyurtma: 50,000 so'm  
+• 🕒 Ish vaqti: 11:00-02:00
+• 🌟 Sifat kafolati
 
-<b>Menyudan tanlang:</b>
+<b>Quyidagi menyudan tanlang:</b>
                                 """
                                 send_message(chat_id, welcome_text, main_menu())
                             
                             elif text == "🍣 Menyu":
-                                send_message(chat_id, "Kategoriya tanlang:", categories_menu())
+                                send_message(chat_id, "🍣 <b>Kategoriyalar:</b>", categories_menu())
                             
-                            elif text in [category["name"] for category in menu_data.values()]:
+                            elif text == "🛒 Savatcha":
+                                show_cart(chat_id)
+                            
+                            elif text == "✅ Buyurtma berish":
+                                start_order(chat_id)
+                            
+                            elif text == "🔄 Savatchani tozalash":
+                                if chat_id in user_data:
+                                    user_data[chat_id]["cart"] = []
+                                send_message(chat_id, "✅ Savatcha tozalandi!", main_menu())
+                            
+                            elif text == "📞 Aloqa":
+                                show_contact(chat_id)
+                            
+                            elif text == "ℹ️ Ma'lumot":
+                                show_info(chat_id)
+                            
+                            elif text == "📢 Aksiyalar":
+                                show_actions(chat_id)
+                            
+                            elif text in ["⬅️ Orqaga", "⬅️ Bosh menyu", "📥 Menyuga qaytish"]:
+                                send_message(chat_id, "🏠 Bosh menyu", main_menu())
+                            
+                            elif text == "📥 Boshqa kategoriya":
+                                send_message(chat_id, "🍣 <b>Kategoriyalar:</b>", categories_menu())
+                            
+                            # Kategoriyalar
+                            elif any(category_data["name"] == text for category_data in menu_data.values()):
                                 for category_key, category_data in menu_data.items():
                                     if category_data["name"] == text:
                                         show_category(chat_id, category_key)
                                         break
                             
-                            elif text == "📞 Aloqa":
-                                contact_text = """
-📞 <b>Aloqa ma'lumotlari:</b>
-
-📍 Qarshi shahri
-📱 +998901234567
-🕒 11:00 - 02:00
-🚚 Yetkazish: 30-45 daqiqa
-
-💬 @tokio_sushi_support
-                                """
-                                send_message(chat_id, contact_text, main_menu())
-                            
-                            elif text == "ℹ️ Ma'lumot":
-                                info_text = """
-ℹ️ <b>Ma'lumot:</b>
-
-• Yetkazib berish: 30-45 daqiqa
-• Minimal buyurtma: 50,000 so'm
-• To'lov: Naqd, Click, Payme
-• Ish vaqti: 09:00-23:00
-
-📞 +998947126030
-                                """
-                                send_message(chat_id, info_text, main_menu())
-                            
-                            elif text == "⬅️ Orqaga":
-                                send_message(chat_id, "Bosh menyu:", main_menu())
-                            
+                            # Mahsulotlar
                             elif any(product["name"] in text for category in menu_data.values() for product in category["products"]):
-                                send_message(chat_id, f"✅ '{text}' savatchaga qo'shildi!", main_menu())
-                                admin_msg = f"🛒 Yangi buyurtma:\n👤 {user_name}\n🍣 {text}\n⏰ {datetime.now().strftime('%H:%M')}"
-                                send_message(ADMIN_ID, admin_msg)
+                                add_to_cart(chat_id, text)
+                            
+                            # Telefon raqam
+                            elif text.startswith("+998") and len(text) == 13:
+                                if chat_id in user_data and user_data[chat_id].get("order_stage") == "waiting_contact":
+                                    user_data[chat_id]["contact"] = text
+                                    user_data[chat_id]["order_stage"] = "waiting_location"
+                                    request_location(chat_id)
+                            
+                            # Boshqa xabarlar
+                            elif text and text != "/start":
+                                send_message(chat_id, "❌ Noma'lum buyruq. Iltimos, menyudan foydalaning.", main_menu())
             
             time.sleep(1)
             
@@ -217,7 +460,7 @@ def main():
 
 @app.route('/')
 def home():
-    return "🏮 Tokio Sushi Bot ishlayapti! 🍣"
+    return "🏮 Tokio Sushi Pro Bot ishlayapti! 🍣"
 
 @app.route('/health')
 def health():
