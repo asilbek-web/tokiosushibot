@@ -77,7 +77,8 @@ def send_message(chat_id, text, keyboard=None):
         data = {
             "chat_id": chat_id,
             "text": text,
-            "parse_mode": "HTML"
+            "parse_mode": "HTML",
+            "disable_web_page_preview": False
         }
         if keyboard:
             data["reply_markup"] = json.dumps(keyboard)
@@ -143,14 +144,6 @@ def cart_menu():
         "resize_keyboard": True
     }
 
-def confirmation_menu():
-    return {
-        "keyboard": [
-            ["✅ HA, buyurtma berish", "❌ BEKOR qilish"]
-        ],
-        "resize_keyboard": True
-    }
-
 def show_category(chat_id, category_key):
     category = menu_data[category_key]
     text = f"<b>{category['name']}</b>\n\n"
@@ -179,11 +172,9 @@ def add_to_cart(chat_id, product_name):
         
         user_data[chat_id]["cart"].append(product)
         
-        # Foydalanuvchiga xabar
         cart_count = len(user_data[chat_id]["cart"])
         send_message(chat_id, f"✅ <b>{product['name']}</b> savatchaga qo'shildi!\n\n🛒 Savatchada: {cart_count} ta mahsulot", main_menu())
         
-        # Adminga xabar
         user_name = user_data[chat_id]["name"]
         admin_msg = f"🛒 <b>Yangi mahsulot qo'shildi:</b>\n👤 {user_name} (ID: {chat_id})\n🍣 {product['name']}\n💰 {product['price']:,} so'm\n⏰ {datetime.now().strftime('%H:%M')}"
         send_message(ADMIN_ID, admin_msg)
@@ -226,6 +217,17 @@ def process_order(chat_id, contact, location):
     order_id = int(time.time())
     user_name = user_data[chat_id].get("name", "Mijoz")
     
+    # Google Maps havolasini yaratish
+    if isinstance(location, dict) and 'latitude' in location:
+        lat = location['latitude']
+        lon = location['longitude']
+        map_url = f"https://www.google.com/maps?q={lat},{lon}"
+        location_text = f"📍 <a href='{map_url}'>Google Maps da ko'rish</a>"
+        location_for_admin = f"🌐 <a href='{map_url}'>Google Maps</a> (Lat: {lat}, Lon: {lon})"
+    else:
+        location_text = location
+        location_for_admin = location
+    
     # Mijozga xabar
     order_text = f"""
 🎉 <b>BUYURTMA QABUL QILINDI!</b>
@@ -233,7 +235,7 @@ def process_order(chat_id, contact, location):
 🆔 Buyurtma raqami: <b>#{order_id}</b>
 👤 Ism: <b>{user_name}</b>
 📞 Telefon: <b>{contact}</b>
-📍 Manzil: <b>{location}</b>
+📍 Manzil: <b>{location_text}</b>
 ⏰ Yetkazish: <b>30-45 daqiqa</b>
 🕒 Buyurtma vaqti: <b>{datetime.now().strftime('%H:%M')}</b>
 
@@ -256,7 +258,7 @@ def process_order(chat_id, contact, location):
 🆔 #{order_id}
 👤 {user_name} (ID: {chat_id})
 📞 {contact}
-📍 {location}
+📍 {location_for_admin}
 🕒 {datetime.now().strftime('%H:%M:%S')}
 💰 {total:,} so'm
 
@@ -269,6 +271,18 @@ def process_order(chat_id, contact, location):
     admin_text += f"\n⏳ Tayyor bo'lishi: {(datetime.now() + timedelta(minutes=40)).strftime('%H:%M')}"
     
     send_message(ADMIN_ID, admin_text)
+    
+    # Alohida Google Maps havolasi
+    if isinstance(location, dict) and 'latitude' in location:
+        map_message = f"""
+🗺️ <b>MIJOZ LOKATSIYASI:</b>
+
+🌐 <a href='https://www.google.com/maps?q={location['latitude']},{location['longitude']}'>Google Maps da ochish</a>
+📍 Kordinatalar: {location['latitude']}, {location['longitude']}
+👤 Mijoz: {user_name}
+📞 Telefon: {contact}
+        """
+        send_message(ADMIN_ID, map_message)
     
     # Savatchani tozalash
     user_data[chat_id]["cart"] = []
@@ -285,13 +299,11 @@ def show_contact(chat_id):
 🚚 Yetkazish: 30-45 daqiqa
 
 <b>Ijtimoiy tarmoqlar:</b>
-📸 Instagram: @https://www.instagram.com/tokio_sushi_bar_karshi?igsh=MTJjNTJyeDZvM3FkaA==
+📸 Instagram: @tokio_sushi_bar_karshi
 📱 Telegram: @tokio_sushi_support
-🌐 Website: tokiosushi.uz
 
 <b>Qo'llab-quvvatlash:</b>
 📞 +998947126030 (24/7)
-💬 @tokio_support_bot
     """
     send_message(chat_id, contact_text, main_menu())
 
@@ -314,7 +326,6 @@ def show_info(chat_id):
 
 📞 <b>Qo'llab-quvvatlash:</b>
 +998947126030
-@tokio_sushi_support
     """
     send_message(chat_id, info_text, main_menu())
 
@@ -331,10 +342,6 @@ def show_actions(chat_id):
 • Har 50,000 so'm - 1 ball
 • 10 ball - 10% chegirma
 • 20 ball - bepul desert
-
-📱 <b>Ilovamizni yuklab oling:</b>
-• Android: play.google.com/tokiosushi
-• iOS: apps.apple.com/tokiosushi
     """
     send_message(chat_id, actions_text, main_menu())
 
@@ -371,12 +378,12 @@ def main():
                                     request_location(chat_id)
                                 continue
                             
-                            # Lokatsiya qabul qilish
+                            # Lokatsiya qabul qilish - TO'G'RILANDI
                             if "location" in message_data:
                                 if chat_id in user_data and user_data[chat_id].get("order_stage") == "waiting_location":
                                     location = message_data["location"]
-                                    loc_text = f"Lat: {location['latitude']}, Lon: {location['longitude']}"
-                                    process_order(chat_id, user_data[chat_id]["contact"], loc_text)
+                                    # To'g'ridan-to'g'ri location obyektini yuboramiz
+                                    process_order(chat_id, user_data[chat_id]["contact"], location)
                                     user_data[chat_id]["order_stage"] = None
                                 continue
                             
@@ -387,7 +394,6 @@ def main():
                                 user_data[chat_id] = {"cart": [], "name": user_name}
                                 print(f"👤 Yangi foydalanuvchi: {user_name} ({chat_id})")
                             
-                            # Asosiy menyu
                             if text == "/start":
                                 welcome_text = f"""
 🏮 <b>Tokio Sushi</b> ga xush kelibsiz, {user_name}! 🎌
@@ -430,25 +436,21 @@ def main():
                             elif text == "📥 Boshqa kategoriya":
                                 send_message(chat_id, "🍣 <b>Kategoriyalar:</b>", categories_menu())
                             
-                            # Kategoriyalar
                             elif any(category_data["name"] == text for category_data in menu_data.values()):
                                 for category_key, category_data in menu_data.items():
                                     if category_data["name"] == text:
                                         show_category(chat_id, category_key)
                                         break
                             
-                            # Mahsulotlar
                             elif any(product["name"] in text for category in menu_data.values() for product in category["products"]):
                                 add_to_cart(chat_id, text)
                             
-                            # Telefon raqam
                             elif text.startswith("+998") and len(text) == 13:
                                 if chat_id in user_data and user_data[chat_id].get("order_stage") == "waiting_contact":
                                     user_data[chat_id]["contact"] = text
                                     user_data[chat_id]["order_stage"] = "waiting_location"
                                     request_location(chat_id)
                             
-                            # Boshqa xabarlar
                             elif text and text != "/start":
                                 send_message(chat_id, "❌ Noma'lum buyruq. Iltimos, menyudan foydalaning.", main_menu())
             
