@@ -244,7 +244,7 @@ def process_order(chat_id, contact, location):
         order_text += f"• {product['name']} - {product['price']:,} so'm\n"
     
     order_text += f"\n<b>💰 JAMI: {total:,} so'm</b>"
-    order_text += f"\n\n📞 <b>Aloqa: +998901234567</b>"
+    order_text += f"\n\n📞 <b>Aloqa: +998947126030</b>"
     order_text += f"\n⏳ <b>Buyurtma tayyor bo'lishi: {((datetime.now() + timedelta(minutes=40)).strftime('%H:%M'))}</b>"
     
     send_message(chat_id, order_text, main_menu())
