@@ -341,7 +341,6 @@ def show_cart(chat_id):
         "inline_keyboard": [
             [{"text": "✅ Buyurtma berish", "callback_data": "place_order"}],
             [{"text": "🗑 Savatni tozalash", "callback_data": "clear_cart"}],
-            [{"text": "✏️ Tahrirlash", "callback_data": "edit_cart"}],
             [{"text": "⬅️ Orqaga", "callback_data": "back_to_menu"}]
         ]
     }
