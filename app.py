@@ -37,7 +37,7 @@ menu_data = {
         "name": "🔥 Issiq Rollar", 
         "products": [
             {"id": 10, "name": "Tempura s lososem", "price": 70000, "description": "Losos tempura"},
-            {"id": 11, "name": "Tempura tuntsa", "price": 75000, "description": "Tunets tempura"},
+            {"id": 11, "name": "Tempura tunes", "price": 75000, "description": "Tunets tempura"},
             {"id": 12, "name": "Tempura kuritsa", "price": 48000, "description": "Tovuq tempura"},
             {"id": 13, "name": "Tempura krevetka", "price": 55000, "description": "Krevetka tempura"}
         ]
