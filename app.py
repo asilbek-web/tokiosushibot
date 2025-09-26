@@ -197,7 +197,208 @@ def send_message(chat_id, text, keyboard=None):
     except Exception as e:
         print(f"Xabar yuborishda xato: {e}")
 
-# ... (qolgan funksiyalar avvalgidek, faqat yangi mahsulotlar qo'shildi)
+def main_menu():
+    keyboard = {
+        "keyboard": [
+            ["🍜 Menyu", "📥 Savat"],
+            ["📦 Mening buyurtmalarim", "ℹ️ Ma'lumot"],
+            ["👑 Admin Panel"]
+        ],
+        "resize_keyboard": True
+    }
+    return keyboard
+
+def show_menu(chat_id):
+    keyboard = {
+        "keyboard": [
+            ["🍜 Issiq Taomlar", "🍕 Pizza va Burger"],
+            ["🍣 Sovuq Rollar", "🔥 Pishirilgan Rollar"],
+            ["⚡ Qovurilgan Rollar", "🎎 Setlar"],
+            ["🍱 Sushi va Gunkan", "🥤 Ichimliklar"],
+            ["🍰 Shirinliklar", "⬅️ Orqaga"]
+        ],
+        "resize_keyboard": True
+    }
+    
+    text = """
+🍱 <b>TOKIO SUSHI MENYU</b> 🎌
+
+🏮 Marhamat, kerakli bo'limni tanlang:
+⭐ Bizda 111 ta mahsulot mavjud
+🚚 Yetkazib berish: 30-45 daqiqa
+💰 Yetkazish: TEKIN
+    """
+    send_message(chat_id, text, keyboard)
+
+def show_category_products(chat_id, category_key):
+    if category_key not in menu_data:
+        send_message(chat_id, "❌ Kategoriya topilmadi")
+        return
+    
+    category = menu_data[category_key]
+    products = category["products"]
+    
+    text = f"🍱 <b>{category['name']}</b>\n\n"
+    
+    # Mahsulotlarni guruhlab ko'rsatish (6 tadan)
+    for i in range(0, len(products), 6):
+        product_group = products[i:i+6]
+        
+        # Har bir mahsulot uchun inline keyboard yaratish
+        keyboard = {"inline_keyboard": []}
+        
+        for product in product_group:
+            keyboard["inline_keyboard"].append([
+                {
+                    "text": f"{product['name']} - {product['price']:,} so'm",
+                    "callback_data": f"add_{product['id']}"
+                }
+            ])
+        
+        # Bo'limlararo navigatsiya
+        if len(products) > 6:
+            nav_buttons = []
+            if i > 0:
+                nav_buttons.append({"text": "⬅️ Oldingi", "callback_data": f"page_{category_key}_{i-6}"})
+            if i + 6 < len(products):
+                nav_buttons.append({"text": "Keyingi ➡️", "callback_data": f"page_{category_key}_{i+6}"})
+            if nav_buttons:
+                keyboard["inline_keyboard"].append(nav_buttons)
+        
+        keyboard["inline_keyboard"].append([{"text": "📥 Savatga qo'shish", "callback_data": "view_cart"}])
+        keyboard["inline_keyboard"].append([{"text": "⬅️ Orqaga", "callback_data": "back_to_menu"}])
+        
+        group_text = text
+        for product in product_group:
+            group_text += f"🍣 {product['name']} - {product['price']:,} so'm\n"
+            group_text += f"   {product['description']}\n\n"
+        
+        send_message(chat_id, group_text, keyboard)
+        break  # Faqat birinchi guruhni ko'rsatish
+
+def handle_callback(chat_id, callback_data):
+    if callback_data.startswith("add_"):
+        product_id = int(callback_data.split("_")[1])
+        add_to_cart(chat_id, product_id)
+    elif callback_data == "view_cart":
+        show_cart(chat_id)
+    elif callback_data == "back_to_menu":
+        show_menu(chat_id)
+    elif callback_data.startswith("page_"):
+        parts = callback_data.split("_")
+        category_key = parts[1]
+        start_index = int(parts[2])
+        show_category_page(chat_id, category_key, start_index)
+
+def add_to_cart(chat_id, product_id):
+    # Mahsulotni topish
+    product = None
+    for category in menu_data.values():
+        for p in category["products"]:
+            if p["id"] == product_id:
+                product = p
+                break
+        if product:
+            break
+    
+    if not product:
+        send_message(chat_id, "❌ Mahsulot topilmadi")
+        return
+    
+    # Foydalanuvchi ma'lumotlarini tekshirish
+    if chat_id not in user_data:
+        user_data[chat_id] = {"cart": []}
+    
+    if "cart" not in user_data[chat_id]:
+        user_data[chat_id]["cart"] = []
+    
+    # Savatga qo'shish
+    user_data[chat_id]["cart"].append(product)
+    
+    text = f"""
+✅ <b>SAVATGA QO'SHILDI</b>
+
+🍣 {product['name']}
+💰 Narxi: {product['price']:,} so'm
+📝 {product['description']}
+
+🛒 Savatingizdagi mahsulotlar: {len(user_data[chat_id]['cart'])} ta
+    """
+    send_message(chat_id, text)
+
+def show_cart(chat_id):
+    if chat_id not in user_data or "cart" not in user_data[chat_id] or not user_data[chat_id]["cart"]:
+        send_message(chat_id, "🛒 Savatingiz bo'sh")
+        return
+    
+    cart = user_data[chat_id]["cart"]
+    total = sum(item['price'] for item in cart)
+    
+    text = "🛒 <b>SAVATINGIZ</b>\n\n"
+    for i, item in enumerate(cart, 1):
+        text += f"{i}. {item['name']} - {item['price']:,} so'm\n"
+    
+    text += f"\n💰 <b>Jami: {total:,} so'm</b>"
+    
+    keyboard = {
+        "inline_keyboard": [
+            [{"text": "✅ Buyurtma berish", "callback_data": "place_order"}],
+            [{"text": "🗑 Savatni tozalash", "callback_data": "clear_cart"}],
+            [{"text": "⬅️ Orqaga", "callback_data": "back_to_menu"}]
+        ]
+    }
+    
+    send_message(chat_id, text, keyboard)
+
+def place_order(chat_id):
+    if chat_id not in user_data or "cart" not in user_data[chat_id] or not user_data[chat_id]["cart"]:
+        send_message(chat_id, "❌ Savatingiz bo'sh")
+        return
+    
+    cart = user_data[chat_id]["cart"]
+    total = sum(item['price'] for item in cart)
+    order_id = len(orders_data) + 1
+    
+    # Buyurtmani saqlash
+    orders_data[order_id] = {
+        "user_id": chat_id,
+        "items": cart.copy(),
+        "total": total,
+        "status": "yangi",
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    # Savatni tozalash
+    user_data[chat_id]["cart"] = []
+    
+    # Foydalanuvchiga xabar
+    text = f"""
+✅ <b>BUYURTMA QABUL QILINDI</b>
+
+📦 Buyurtma raqami: #{order_id}
+💰 Jami summa: {total:,} so'm
+⏰ Yetkazib berish: 30-45 daqiqa
+🚚 Yetkazish: TEKIN
+
+📞 Bog'lanish: +998947126030
+    """
+    send_message(chat_id, text, main_menu())
+    
+    # Adminga xabar
+    admin_text = f"""
+🆕 <b>YANGI BUYURTMA</b>
+
+👤 Foydalanuvchi: {chat_id}
+📦 Buyurtma raqami: #{order_id}
+💰 Summa: {total:,} so'm
+⏰ Vaqt: {datetime.now().strftime('%H:%M')}
+
+📦 Mahsulotlar:
+"""
+    for item in cart:
+        admin_text += f"• {item['name']} - {item['price']:,} so'm\n"
+    
+    send_message(ADMIN_ID, admin_text)
 
 def admin_panel(chat_id):
     if str(chat_id) != ADMIN_ID:
@@ -224,14 +425,17 @@ def admin_panel(chat_id):
     send_message(chat_id, text, keyboard)
 
 def show_today_stats(chat_id):
-    # Soddalashtirilgan statistika
-    total_orders = len(orders_data)
-    total_revenue = sum(order['total'] for order in orders_data.values())
+    today = datetime.now().date()
+    today_orders = [order for order in orders_data.values() 
+                   if datetime.fromisoformat(order['timestamp']).date() == today]
+    
+    total_orders = len(today_orders)
+    total_revenue = sum(order['total'] for order in today_orders)
     
     text = f"""
 📊 <b>BUGUNGI STATISTIKA</b>
 
-🕒 Sana: {datetime.now().strftime('%Y-%m-%d')}
+🕒 Sana: {today.strftime('%Y-%m-%d')}
 📦 Buyurtmalar: {total_orders} ta
 💰 Daromad: {total_revenue:,} so'm
 👥 Faol foydalanuvchilar: {len(user_data)} ta
@@ -240,8 +444,7 @@ def show_today_stats(chat_id):
     send_message(chat_id, text)
 
 def cancel_order(chat_id):
-    if chat_id in user_data and user_data[chat_id].get("order_stage"):
-        user_data[chat_id]["order_stage"] = None
+    if chat_id in user_data and user_data[chat_id].get("cart"):
         user_data[chat_id]["cart"] = []
         send_message(chat_id, "❌ Buyurtma bekor qilindi. Savatchangiz tozalandi.", main_menu())
         
@@ -252,7 +455,6 @@ def cancel_order(chat_id):
         send_message(chat_id, "❌ Bekor qilish uchun faol buyurtma topilmadi.")
 
 def order_status(chat_id):
-    # Buyurtma holati
     text = """
 ⏳ <b>BUYURTMA HOLATI</b>
 
@@ -264,7 +466,50 @@ def order_status(chat_id):
     """
     send_message(chat_id, text, main_menu())
 
-def main():
+def show_category_page(chat_id, category_key, start_index):
+    if category_key not in menu_data:
+        send_message(chat_id, "❌ Kategoriya topilmadi")
+        return
+    
+    category = menu_data[category_key]
+    products = category["products"]
+    
+    if start_index >= len(products):
+        start_index = 0
+    
+    text = f"🍱 <b>{category['name']}</b>\n\n"
+    current_products = products[start_index:start_index+6]
+    
+    for product in current_products:
+        text += f"🍣 {product['name']} - {product['price']:,} so'm\n"
+        text += f"   {product['description']}\n\n"
+    
+    keyboard = {"inline_keyboard": []}
+    
+    for product in current_products:
+        keyboard["inline_keyboard"].append([
+            {
+                "text": f"{product['name']} - {product['price']:,} so'm",
+                "callback_data": f"add_{product['id']}"
+            }
+        ])
+    
+    # Navigatsiya tugmalari
+    nav_buttons = []
+    if start_index > 0:
+        nav_buttons.append({"text": "⬅️ Oldingi", "callback_data": f"page_{category_key}_{max(0, start_index-6)}"})
+    if start_index + 6 < len(products):
+        nav_buttons.append({"text": "Keyingi ➡️", "callback_data": f"page_{category_key}_{start_index+6}"})
+    
+    if nav_buttons:
+        keyboard["inline_keyboard"].append(nav_buttons)
+    
+    keyboard["inline_keyboard"].append([{"text": "📥 Savatga qo'shish", "callback_data": "view_cart"}])
+    keyboard["inline_keyboard"].append([{"text": "⬅️ Orqaga", "callback_data": "back_to_menu"}])
+    
+    send_message(chat_id, text, keyboard)
+
+def run_bot():
     print("🚀 Tokio Sushi Pro Bot ishga tushdi!")
     print(f"👑 Admin: {ADMIN_ID}")
     print("📞 Support: +998947126030")
@@ -290,9 +535,61 @@ def main():
                             message_data = update["message"]
                             text = message_data.get("text", "")
                             
-                            # ... (oldingi kod qismi)
+                            # Start command
+                            if text == "/start":
+                                welcome_text = """
+🍱 <b>TOKIO SUSHI</b> 🎌
 
-                            # YANGI FUNKSIYALAR
+🏮 Xush kelibsiz! Tokio Sushi'ning rasmiy botiga.
+⭐ Sifatli yapon oshxonasi
+🚚 Tezkor yetkazib berish: 30-45 daqiqa
+💰 Yetkazish: TEKIN
+
+📞 Bog'lanish: +998947126030
+                                """
+                                send_message(chat_id, welcome_text, main_menu())
+                            
+                            # Asosiy menyu
+                            elif text == "🍜 Menyu":
+                                show_menu(chat_id)
+                            
+                            # Kategoriyalar
+                            elif text in ["🍜 Issiq Taomlar", "🍕 Pizza va Burger", "🍣 Sovuq Rollar", 
+                                        "🔥 Pishirilgan Rollar", "⚡ Qovurilgan Rollar", "🎎 Setlar",
+                                        "🍱 Sushi va Gunkan", "🥤 Ichimliklar", "🍰 Shirinliklar"]:
+                                category_map = {
+                                    "🍜 Issiq Taomlar": "issiq_taomlar",
+                                    "🍕 Pizza va Burger": "pizza_burger", 
+                                    "🍣 Sovuq Rollar": "sovuq_rollar",
+                                    "🔥 Pishirilgan Rollar": "pishirilgan_rollar",
+                                    "⚡ Qovurilgan Rollar": "qovurilgan_rollar",
+                                    "🎎 Setlar": "setlar",
+                                    "🍱 Sushi va Gunkan": "sushi_gunkan",
+                                    "🥤 Ichimliklar": "ichimliklar",
+                                    "🍰 Shirinliklar": "shirinliklar"
+                                }
+                                show_category_products(chat_id, category_map[text])
+                            
+                            elif text == "📥 Savat":
+                                show_cart(chat_id)
+                            
+                            elif text == "📦 Mening buyurtmalarim":
+                                order_status(chat_id)
+                            
+                            elif text == "ℹ️ Ma'lumot":
+                                info_text = """
+🏮 <b>TOKIO SUSHI</b> 🎌
+
+⭐ Sifatli yapon oshxonasi
+🕒 Ish vaqti: 10:00 - 23:00
+🚚 Yetkazib berish: 30-45 daqiqa
+💰 Yetkazish: TEKIN
+
+📞 Bog'lanish: +998947126030
+📍 Manzil: Toshkent shahar
+                                """
+                                send_message(chat_id, info_text, main_menu())
+                            
                             elif text == "👑 Admin Panel" and str(chat_id) == ADMIN_ID:
                                 admin_panel(chat_id)
                             
@@ -304,6 +601,26 @@ def main():
                             
                             elif text == "📦 Buyurtma holati":
                                 order_status(chat_id)
+                            
+                            elif text == "⬅️ Orqaga":
+                                send_message(chat_id, "🏠 Asosiy menyu", main_menu())
+                            
+                            elif text == "⬅️ Foydalanuvchi rejimi" and str(chat_id) == ADMIN_ID:
+                                send_message(chat_id, "👤 Foydalanuvchi rejimiga o'tildi", main_menu())
+                        
+                        elif "callback_query" in update:
+                            callback = update["callback_query"]
+                            chat_id = callback["message"]["chat"]["id"]
+                            callback_data = callback["data"]
+                            
+                            if callback_data == "place_order":
+                                place_order(chat_id)
+                            elif callback_data == "clear_cart":
+                                if chat_id in user_data:
+                                    user_data[chat_id]["cart"] = []
+                                send_message(chat_id, "🗑 Savat tozalandi")
+                            else:
+                                handle_callback(chat_id, callback_data)
             
             time.sleep(1)
             
@@ -311,7 +628,9 @@ def main():
             print(f"Xato: {e}")
             time.sleep(3)
 
-# ... (qolgan kod avvalgidek)
+@app.route('/')
+def home():
+    return "🍱 Tokio Sushi Bot ishlamoqda!"
 
 if __name__ == "__main__":
     bot_thread = Thread(target=run_bot)
