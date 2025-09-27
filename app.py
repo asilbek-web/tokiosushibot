@@ -345,7 +345,7 @@ def admin_panel_premium(chat_id):
     keyboard = {
         "keyboard": [
             ["📊 Bugun statistikasi", "📈 Haftalik statistika"],
-            ["📦 Faol buyurtmalar", "✅ Bajarilgan buyurtmalar"],
+            ["📦 Faol buyurtmalar", "✅ Bajarilgn buyurtmalar"],
             ["👥 Mijozlar bazasi", "💰 Daromad hisoboti"],
             ["⬅️ Foydalanuvchi rejimi"]
         ],
