@@ -97,7 +97,7 @@ menu_data = {
             {"id": 46, "name": "Темпура (Тунец)", "price": 75000, "description": "Огурец.Сыр.Тунец", "prep_time": "15 daqiqa"},
             {"id": 47, "name": "Темпура Угорь", "price": 71000, "description": "Сыр.Огурец.Угорь.Массаго красс.Унаги соус", "prep_time": "15 daqiqa"},
             {"id": 48, "name": "Темпура с креветками", "price": 70000, "description": "Сыр.Огурец.Креветки тигровые.Массаго красс.Унаги соус", "prep_time": "15 daqiqa"},
-            {"id": 49, "name": "Темпура с лососем", "price": 66000, "description": "Сыр.Огурец.Лосось.Унаги соус.Кунжут", "prep_time": "14 daqiqa"},
+            {"id": 49, "name": "Темпура с лососем", "price": 66000, "description": "Сыр.Огурец.Лосось.Унаги соус.Кунjut", "prep_time": "14 daqiqa"},
             {"id": 50, "name": "Темпура Курица", "price": 48000, "description": "Айсберг.Майонез.Курица.Унаги соус", "prep_time": "12 daqiqa"}
         ]
     },
@@ -166,7 +166,7 @@ user_data = {}
 orders_data = {}
 order_counter = 1
 
-# ==================== PREMIUM FUNCTIONS ====================
+# ==================== ASOSIY FUNKSIYALAR ====================
 
 def send_message(chat_id, text, keyboard=None):
     """Xabar yuborish"""
@@ -180,9 +180,11 @@ def send_message(chat_id, text, keyboard=None):
         }
         if keyboard:
             data["reply_markup"] = json.dumps(keyboard)
-        requests.post(url, json=data, timeout=10)
+        response = requests.post(url, json=data, timeout=10)
+        return response.status_code == 200
     except Exception as e:
         print(f"Xabar yuborishda xato: {e}")
+        return False
 
 def main_menu(chat_id):
     """Asosiy menyu"""
@@ -230,7 +232,7 @@ def show_categories(chat_id):
     """
     send_message(chat_id, text, keyboard)
 
-def show_category_products(chat_id, category_key):
+def show_category_products(chat_id, category_key, start_index=0):
     """Kategoriya mahsulotlarini ko'rsatish"""
     if category_key not in menu_data:
         send_message(chat_id, "❌ Kategoriya topilmadi")
@@ -239,30 +241,34 @@ def show_category_products(chat_id, category_key):
     category = menu_data[category_key]
     products = category["products"]
     
+    # Sahifalash
+    end_index = min(start_index + 4, len(products))
+    current_products = products[start_index:end_index]
+    
     text = f"{category['emoji']} <b>{category['name']}</b>\n\n"
     
-    # Birinchi 4 ta mahsulotni ko'rsatish
-    for i in range(min(4, len(products))):
-        product = products[i]
+    for product in current_products:
         text += f"🍣 {product['name']} - {product['price']:,} so'm\n"
         text += f"⏱️ {product['prep_time']} | {product['description']}\n\n"
     
     # Inline keyboard
     keyboard = {"inline_keyboard": []}
     
-    for i in range(min(4, len(products))):
-        product = products[i]
+    for product in current_products:
         keyboard["inline_keyboard"].append([{
             "text": f"➕ {product['name']} - {product['price']:,} so'm",
             "callback_data": f"add_{product['id']}"
         }])
     
-    # Sahifalash
-    if len(products) > 4:
-        keyboard["inline_keyboard"].append([
-            {"text": "⬅️ Oldingi", "callback_data": f"prev_{category_key}_0"},
-            {"text": "Keyingi ➡️", "callback_data": f"next_{category_key}_4"}
-        ])
+    # Sahifalash tugmalari
+    nav_buttons = []
+    if start_index > 0:
+        nav_buttons.append({"text": "⬅️ Oldingi", "callback_data": f"prev_{category_key}_{start_index-4}"})
+    if end_index < len(products):
+        nav_buttons.append({"text": "Keyingi ➡️", "callback_data": f"next_{category_key}_{end_index}"})
+    
+    if nav_buttons:
+        keyboard["inline_keyboard"].append(nav_buttons)
     
     keyboard["inline_keyboard"].append([
         {"text": "🛒 Savat", "callback_data": "view_cart"},
@@ -270,6 +276,43 @@ def show_category_products(chat_id, category_key):
     ])
     
     send_message(chat_id, text, keyboard)
+
+def add_to_cart(chat_id, product_id):
+    """Mahsulotni savatga qo'shish"""
+    # Mahsulotni topish
+    product = None
+    for category in menu_data.values():
+        for p in category["products"]:
+            if p["id"] == product_id:
+                product = p
+                break
+        if product:
+            break
+    
+    if not product:
+        send_message(chat_id, "❌ Mahsulot topilmadi")
+        return
+    
+    # Foydalanuvchi ma'lumotlarini tekshirish
+    if chat_id not in user_data:
+        user_data[chat_id] = {"cart": []}
+    
+    if "cart" not in user_data[chat_id]:
+        user_data[chat_id]["cart"] = []
+    
+    # Savatga qo'shish
+    user_data[chat_id]["cart"].append(product)
+    
+    text = f"""
+✅ <b>SAVATGA QO'SHILDI</b>
+
+🍣 {product['name']}
+💰 Narxi: {product['price']:,} so'm
+⏱️ Tayyorlanish: {product['prep_time']}
+
+🛒 Savatingizdagi mahsulotlar: {len(user_data[chat_id]['cart'])} ta
+    """
+    send_message(chat_id, text)
 
 def show_cart(chat_id):
     """Savatni ko'rsatish"""
@@ -359,6 +402,7 @@ def process_order(chat_id):
     global order_counter
     cart = user_data[chat_id]["cart"]
     total = sum(item['price'] for item in cart)
+    total_with_delivery = total + DELIVERY_PRICE
     
     order_id = order_counter
     order_counter += 1
@@ -369,6 +413,7 @@ def process_order(chat_id):
         "user_location": user_info["location"],
         "items": cart.copy(),
         "total": total,
+        "total_with_delivery": total_with_delivery,
         "status": "yangi",
         "timestamp": datetime.now().isoformat()
     }
@@ -382,7 +427,7 @@ def process_order(chat_id):
 ✅ <b>BUYURTMA QABUL QILINDI!</b>
 
 📦 Buyurtma raqami: #{order_id}
-💰 Jami summa: {total + DELIVERY_PRICE:,} so'm
+💰 Jami summa: {total_with_delivery:,} so'm
 📞 Telefon: {user_info['phone']}
 📍 Manzil: {user_info['location']}
 ⏰ Yetkazish vaqti: {delivery_time.strftime('%H:%M')}
@@ -394,7 +439,7 @@ def process_order(chat_id):
     
     # Adminga xabar
     maps_link = user_info['location']
-    if "http" not in maps_link:
+    if "http" not in maps_link and "maps" not in maps_link:
         maps_link = f"https://maps.google.com/?q={maps_link}"
     
     admin_text = f"""
@@ -403,9 +448,9 @@ def process_order(chat_id):
 👤 Mijoz ID: {chat_id}
 📞 Telefon: {user_info['phone']}
 📍 Manzil: <a href='{maps_link}'>Google Maps</a>
-💵 Summa: {total:,} so'm
+💵 Mahsulotlar: {total:,} so'm
 🚚 Yetkazish: {DELIVERY_PRICE:,} so'm
-💰 Jami: {total + DELIVERY_PRICE:,} so'm
+💰 Jami: {total_with_delivery:,} so'm
 ⏰ Vaqt: {datetime.now().strftime('%H:%M')}
 
 📦 Buyurtma:
@@ -417,11 +462,72 @@ def process_order(chat_id):
         "inline_keyboard": [
             [{"text": "✅ Qabul qilish", "callback_data": f"accept_{order_id}"}],
             [{"text": "❌ Bekor qilish", "callback_data": f"cancel_{order_id}"}],
-            [{"text": "✅ Tayyor", "callback_data": f"ready_{order_id}"}]
+            [{"text": "✅ Tayyor", "callback_data": f"ready_{order_id}"}],
+            [{"text": "📞 Bog'lanish", "callback_data": f"contact_{order_id}"}]
         ]
     }
     
     send_message(ADMIN_ID, admin_text, admin_keyboard)
+
+def handle_callback(chat_id, callback_data):
+    """Callbacklarni qayta ishlash"""
+    try:
+        if callback_data.startswith("add_"):
+            product_id = int(callback_data.split("_")[1])
+            add_to_cart(chat_id, product_id)
+            
+        elif callback_data == "view_cart":
+            show_cart(chat_id)
+            
+        elif callback_data == "place_order":
+            process_order(chat_id)
+            
+        elif callback_data == "clear_cart":
+            if chat_id in user_data:
+                user_data[chat_id]["cart"] = []
+            send_message(chat_id, "🗑 Savat tozalandi", main_menu(chat_id))
+            
+        elif callback_data == "back_to_categories":
+            show_categories(chat_id)
+            
+        elif callback_data.startswith("prev_") or callback_data.startswith("next_"):
+            parts = callback_data.split("_")
+            action = parts[0]
+            category_key = parts[1]
+            start_index = int(parts[2])
+            
+            show_category_products(chat_id, category_key, start_index)
+            
+        elif callback_data.startswith("accept_"):
+            if str(chat_id) == ADMIN_ID:
+                order_id = int(callback_data.split("_")[1])
+                if order_id in orders_data:
+                    orders_data[order_id]["status"] = "qabul_qilindi"
+                    user_id = orders_data[order_id]["user_id"]
+                    send_message(user_id, f"✅ #{order_id} buyurtmangiz qabul qilindi va tayyorlanmoqda!")
+                    send_message(chat_id, f"✅ #{order_id} buyurtma qabul qilindi")
+            
+        elif callback_data.startswith("ready_"):
+            if str(chat_id) == ADMIN_ID:
+                order_id = int(callback_data.split("_")[1])
+                if order_id in orders_data:
+                    orders_data[order_id]["status"] = "tayyor"
+                    user_id = orders_data[order_id]["user_id"]
+                    send_message(user_id, f"🎉 #{order_id} buyurtmangiz tayyor! Yetkazib berishmoqda...")
+                    send_message(chat_id, f"✅ #{order_id} buyurtma tayyor deb belgilandi")
+            
+        elif callback_data.startswith("cancel_"):
+            if str(chat_id) == ADMIN_ID:
+                order_id = int(callback_data.split("_")[1])
+                if order_id in orders_data:
+                    orders_data[order_id]["status"] = "bekor_qilindi"
+                    user_id = orders_data[order_id]["user_id"]
+                    send_message(user_id, f"❌ #{order_id} buyurtmangiz bekor qilindi. Iltimos, qaytadan urinib ko'ring.")
+                    send_message(chat_id, f"❌ #{order_id} buyurtma bekor qilindi")
+                    
+    except Exception as e:
+        print(f"Callback xatosi: {e}")
+        send_message(chat_id, "❌ Xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring.")
 
 # ==================== UPTIME ROBOT ====================
 
@@ -435,7 +541,6 @@ def keep_alive():
 
 def start_keep_alive():
     """Keep-alive ni ishga tushirish"""
-    import schedule
     schedule.every(10).minutes.do(keep_alive)
     while True:
         schedule.run_pending()
@@ -447,9 +552,13 @@ def home():
 
 @app.route('/health')
 def health_check():
-    return {"status": "healthy", "service": "Tokio Sushi Premium Bot"}
+    return {"status": "healthy", "service": "Tokio Sushi Premium Bot", "timestamp": datetime.now().isoformat()}
 
-# ==================== MAIN BOT ====================
+@app.route('/ping')
+def ping():
+    return "pong"
+
+# ==================== ASOSIY BOT LOGIKASI ====================
 
 def run_bot():
     print("🚀 Tokio Sushi Premium Bot ishga tushdi!")
@@ -489,6 +598,51 @@ def run_bot():
                             elif text == "🍱 Premium Menyu":
                                 show_categories(chat_id)
                             
+                            elif text == "🛒 Savat":
+                                show_cart(chat_id)
+                                
+                            elif text == "📦 Mening buyurtmalarim":
+                                # Foydalanuvchining buyurtmalarini ko'rsatish
+                                user_orders = [order for order in orders_data.values() if order["user_id"] == chat_id]
+                                if user_orders:
+                                    text = "📦 <b>SIZNING BUYURTMALARINGIZ</b>\n\n"
+                                    for order in user_orders[-5:]:  # Oxirgi 5 tasi
+                                        status_emoji = "✅" if order["status"] == "tayyor" else "⏳" if order["status"] == "qabul_qilindi" else "❌"
+                                        text += f"{status_emoji} #{order} - {order['total_with_delivery']:,} so'm - {order['status']}\n"
+                                    send_message(chat_id, text)
+                                else:
+                                    send_message(chat_id, "📦 Siz hali buyurtma bermagansiz")
+                            
+                            elif text == "ℹ️ Ma'lumot":
+                                info_text = f"""
+🏮 <b>TOKIO SUSHI</b> 🎌
+
+⭐ Premium yapon oshxonasi
+🕒 Ish vaqti: {WORK_HOURS}
+🚚 Yetkazib berish: {PREPARATION_TIME}
+💰 Yetkazish narxi: {DELIVERY_PRICE:,} so'm
+
+📞 Bog'lanish: +998947126030
+📍 Manzil: Toshkent shahar
+                                """
+                                send_message(chat_id, info_text)
+                            
+                            elif text == "👑 Admin Panel" and str(chat_id) == ADMIN_ID:
+                                # Admin panel
+                                today_orders = len([o for o in orders_data.values() if datetime.fromisoformat(o['timestamp']).date() == datetime.now().date()])
+                                admin_text = f"""
+👑 <b>ADMIN PANEL</b>
+
+📊 Bugun buyurtmalar: {today_orders} ta
+👥 Jami mijozlar: {len(user_data)} ta
+💰 Jami buyurtmalar: {len(orders_data)} ta
+🕒 Vaqt: {datetime.now().strftime('%H:%M')}
+                                """
+                                send_message(chat_id, admin_text)
+                            
+                            elif text == "⬅️ Asosiy menyu":
+                                send_message(chat_id, "🏠 Asosiy menyu", main_menu(chat_id))
+                            
                             # Kategoriyalar
                             elif text in ["🍜 Issiq Taomlar", "🍕 Pizza va Burger", "🍣 Sovuq Rollar", 
                                         "🔥 Pishirilgan Rollar", "⚡ Qovurilgan Rollar", "🍱 Sushi va Gunkan",
@@ -504,19 +658,6 @@ def run_bot():
                                     "🥤 Ichimliklar": "ichimliklar"
                                 }
                                 show_category_products(chat_id, category_map[text])
-                            
-                            elif text == "🛒 Savat":
-                                show_cart(chat_id)
-                            
-                            elif text == "👑 Admin Panel" and str(chat_id) == ADMIN_ID:
-                                admin_text = f"""
-👑 <b>ADMIN PANEL</b>
-
-📊 Bugun buyurtmalar: {len([o for o in orders_data.values() if datetime.fromisoformat(o['timestamp']).date() == datetime.now().date()])} ta
-👥 Mijozlar: {len(user_data)} ta
-🕒 Vaqt: {datetime.now().strftime('%H:%M')}
-                                """
-                                send_message(chat_id, admin_text)
                             
                             # Telefon qabul qilish
                             elif "contact" in message:
@@ -541,21 +682,26 @@ def run_bot():
                                 user_data[chat_id]["location"] = maps_url
                                 send_message(chat_id, f"✅ Manzilingiz qabul qilindi!\n📍 {maps_url}")
                                 
+                                # Agar savat bo'sh bo'lmasa, buyurtma berishni taklif qilish
                                 if "cart" in user_data[chat_id] and user_data[chat_id]["cart"]:
-                                    send_message(chat_id, "✅ Endi buyurtma berishingiz mumkin!", main_menu(chat_id))
+                                    send_message(chat_id, "✅ Endi buyurtma berishingiz mumkin! \"🛒 Savat\" tugmasini bosing.", main_menu(chat_id))
+                            
+                            # Google Maps linkini qabul qilish
+                            elif "maps.google.com" in text or "goo.gl/maps" in text:
+                                if chat_id not in user_data:
+                                    user_data[chat_id] = {}
+                                user_data[chat_id]["location"] = text
+                                send_message(chat_id, f"✅ Manzilingiz qabul qilindi!\n📍 {text}")
+                                
+                                if "cart" in user_data[chat_id] and user_data[chat_id]["cart"]:
+                                    send_message(chat_id, "✅ Endi buyurtma berishingiz mumkin! \"🛒 Savat\" tugmasini bosing.", main_menu(chat_id))
                         
                         elif "callback_query" in update:
                             callback = update["callback_query"]
                             chat_id = callback["message"]["chat"]["id"]
-                            data = callback["data"]
+                            callback_data = callback["data"]
                             
-                            if data.startswith("add_"):
-                                product_id = int(data.split("_")[1])
-                                # Savatga qo'shish logikasi
-                                send_message(chat_id, "✅ Mahsulot savatga qo'shildi!")
-                            
-                            elif data == "place_order":
-                                process_order(chat_id)
+                            handle_callback(chat_id, callback_data)
             
             time.sleep(1)
             
@@ -564,14 +710,14 @@ def run_bot():
             time.sleep(3)
 
 if __name__ == "__main__":
-    # Keep-alive
-    keep_thread = Thread(target=start_keep_alive, daemon=True)
-    keep_thread.start()
+    # Keep-alive ni ishga tushirish
+    keep_alive_thread = Thread(target=start_keep_alive, daemon=True)
+    keep_alive_thread.start()
     
-    # Bot
+    # Asosiy botni ishga tushirish
     bot_thread = Thread(target=run_bot, daemon=True)
     bot_thread.start()
     
-    # Server
+    # Flask server
     port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=False)
