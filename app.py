@@ -438,7 +438,7 @@ def process_order(chat_id):
 ⏰ Yetkazish vaqti: {delivery_time.strftime('%H:%M')}
 🚚 Yetkazib berish: {DELIVERY_PRICE:,} so'm
 
-📞 Bog'lanish: +998947126030
+📞 Bog'lanish: +998 91 211 12 15
     """
     send_message(chat_id, text, main_menu(chat_id))
     
@@ -467,7 +467,7 @@ def process_order(chat_id):
         "inline_keyboard": [
             [{"text": "✅ Qabul qilish", "callback_data": f"accept_{order_id}"}],
             [{"text": "❌ Bekor qilish", "callback_data": f"cancel_{order_id}"}],
-            [{"text": "✅ Tayyor", "callback_data": f"ready_{order_id}"}],
+            [{"text": "✅ Buyurtma Tayyor", "callback_data": f"ready_{order_id}"}],
             [{"text": "📞 Bog'lanish", "callback_data": f"contact_{order_id}"}]
         ]
     }
@@ -609,7 +609,7 @@ def run_bot():
 🚚 Tezkor yetkazib berish
 💎 Premium xizmat
 
-📞 Bog'lanish: +998947126030
+📞 Bog'lanish: +998 91 211 12 15
                                 """
                                 send_message(chat_id, welcome_text, main_menu(chat_id))
                             
@@ -639,8 +639,8 @@ def run_bot():
 🚚 Yetkazib berish: {PREPARATION_TIME}
 💰 Yetkazish narxi: {DELIVERY_PRICE:,} so'm
 
-📞 Bog'lanish: +998947126030
-📍 Manzil: Toshkent shahar
+📞 Bog'lanish: +998 91 211 12 15
+📍 Manzil: Qarshi shahar 
                                 """
                                 send_message(chat_id, info_text)
                             
