@@ -245,7 +245,12 @@ def show_category_products(chat_id, category_key, start_index=0):
     end_index = min(start_index + 4, len(products))
     current_products = products[start_index:end_index]
     
+    # Sahifa raqami
+    current_page = (start_index // 4) + 1
+    total_pages = (len(products) + 3) // 4
+    
     text = f"{category['emoji']} <b>{category['name']}</b>\n\n"
+    text += f"📄 Sahifa: {current_page}/{total_pages}\n\n"
     
     for product in current_products:
         text += f"🍣 {product['name']} - {product['price']:,} so'm\n"
@@ -491,10 +496,15 @@ def handle_callback(chat_id, callback_data):
             show_categories(chat_id)
             
         elif callback_data.startswith("prev_") or callback_data.startswith("next_"):
+            # Yangi: To'g'ri ajratish logikasi
             parts = callback_data.split("_")
-            action = parts[0]
-            category_key = parts[1]
-            start_index = int(parts[2])
+            action = parts[0]  # "prev" yoki "next"
+            # Kategoriya kaliti (masalan: "issiq_taomlar")
+            if len(parts) > 3:
+                category_key = "_".join(parts[1:-1])
+            else:
+                category_key = parts[1]
+            start_index = int(parts[-1])  # Sahifa raqami
             
             show_category_products(chat_id, category_key, start_index)
             
@@ -524,6 +534,14 @@ def handle_callback(chat_id, callback_data):
                     user_id = orders_data[order_id]["user_id"]
                     send_message(user_id, f"❌ #{order_id} buyurtmangiz bekor qilindi. Iltimos, qaytadan urinib ko'ring.")
                     send_message(chat_id, f"❌ #{order_id} buyurtma bekor qilindi")
+            
+        elif callback_data.startswith("contact_"):
+            if str(chat_id) == ADMIN_ID:
+                order_id = int(callback_data.split("_")[1])
+                if order_id in orders_data:
+                    user_id = orders_data[order_id]["user_id"]
+                    user_phone = orders_data[order_id]["user_phone"]
+                    send_message(chat_id, f"📞 Buyurtma #{order_id} mijoz telefon raqami: {user_phone}")
                     
     except Exception as e:
         print(f"Callback xatosi: {e}")
@@ -642,20 +660,19 @@ def run_bot():
                                 send_message(chat_id, "🏠 Asosiy menyu", main_menu(chat_id))
                             
                             # Kategoriyalar
-                            elif text in ["🍜 Issiq Taomlar", "🍕 Pizza va Burger", "🍣 Sovuq Rollar", 
-                                        "🔥 Pishirilgan Rollar", "⚡ Qovurilgan Rollar", "🍱 Sushi va Gunkan",
-                                        "🎎 Setlar", "🥤 Ichimliklar"]:
-                                category_map = {
-                                    "🍜 Issiq Taomlar": "issiq_taomlar",
-                                    "🍕 Pizza va Burger": "pizza_burger",
-                                    "🍣 Sovuq Rollar": "sovuq_rollar", 
-                                    "🔥 Pishirilgan Rollar": "pishirilgan_rollar",
-                                    "⚡ Qovurilgan Rollar": "qovurilgan_rollar",
-                                    "🍱 Sushi va Gunkan": "sushi_gunkan",
-                                    "🎎 Setlar": "setlar",
-                                    "🥤 Ichimliklar": "ichimliklar"
-                                }
-                                show_category_products(chat_id, category_map[text])
+                            category_map = {
+                                "🍜 Issiq Taomlar": "issiq_taomlar",
+                                "🍕 Pizza va Burger": "pizza_burger",
+                                "🍣 Sovuq Rollar": "sovuq_rollar", 
+                                "🔥 Pishirilgan Rollar": "pishirilgan_rollar",
+                                "⚡ Qovurilgan Rollar": "qovurilgan_rollar",
+                                "🍱 Sushi va Gunkan": "sushi_gunkan",
+                                "🎎 Setlar": "setlar",
+                                "🥤 Ichimliklar": "ichimliklar"
+                            }
+                            
+                            if text in category_map:
+                                show_category_products(chat_id, category_map[text], 0)
                             
                             # Telefon qabul qilish
                             elif "contact" in message:
