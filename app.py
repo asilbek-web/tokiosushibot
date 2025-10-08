@@ -244,19 +244,86 @@ def show_full_menu(chat_id):
     # Inline keyboard - barcha mahsulotlar uchun tugmalar
     keyboard = {"inline_keyboard": []}
     
-    # Har bir kategoriya uchun alohida qator
+    # Har bir kategoriya uchun alohida qator (faqat birinchi 10 ta mahsulot)
+    products_added = 0
     for category_key, category in menu_data.items():
         for product in category["products"]:
+            if products_added >= 10:  # Faqat 10 ta mahsulot ko'rsatamiz
+                break
             # Har bir mahsulot uchun tugma
             keyboard["inline_keyboard"].append([{
                 "text": f"➕ {product['name']}",
                 "callback_data": f"add_{product['id']}"
             }])
+            products_added += 1
     
     # Asosiy tugmalar
     keyboard["inline_keyboard"].extend([
         [{"text": "🛒 Savatni ko'rish", "callback_data": "view_cart"}],
         [{"text": "📞 Buyurtma berish", "callback_data": "place_order"}],
+        [{"text": "📋 Barcha mahsulotlar", "callback_data": "show_all_products"}],
+        [{"text": "🏠 Asosiy menyu", "callback_data": "main_menu"}]
+    ])
+    
+    send_message(chat_id, text, keyboard)
+
+def show_all_products(chat_id):
+    """Barcha mahsulotlarni alohida xabarlarda ko'rsatish"""
+    # Avval menyu haqida umumiy ma'lumot
+    intro_text = f"""
+🎌 <b>TOKIO SUSHI PREMIUM - BARCHA MAHSULOTLAR</b> 🍱
+
+⭐ <b>8 ta kategoriya, 90 ta mahsulot</b>
+🎁 <b>Har bir buyurtmaga {DISCOUNT_PERCENT}% chegirma!</b>
+
+<b>Quyidagi kategoriyalardan mahsulot tanlang:</b>
+"""
+    
+    category_keyboard = {
+        "inline_keyboard": [
+            [{"text": "🍜 Issiq Taomlar", "callback_data": "category_issiq_taomlar"}],
+            [{"text": "🍕 Pizza va Burger", "callback_data": "category_pizza_burger"}],
+            [{"text": "🍣 Sovuq Rollar", "callback_data": "category_sovuq_rollar"}],
+            [{"text": "🔥 Pishirilgan Rollar", "callback_data": "category_pishirilgan_rollar"}],
+            [{"text": "⚡ Qovurilgan Rollar", "callback_data": "category_qovurilgan_rollar"}],
+            [{"text": "🍱 Sushi va Gunkan", "callback_data": "category_sushi_gunkan"}],
+            [{"text": "🎎 Setlar", "callback_data": "category_setlar"}],
+            [{"text": "🥤 Ichimliklar", "callback_data": "category_ichimliklar"}],
+            [{"text": "🛒 Savat", "callback_data": "view_cart"}, {"text": "🏠 Menyu", "callback_data": "show_menu"}]
+        ]
+    }
+    
+    send_message(chat_id, intro_text, category_keyboard)
+
+def show_category_products(chat_id, category_key):
+    """Kategoriya mahsulotlarini ko'rsatish"""
+    if category_key not in menu_data:
+        send_message(chat_id, "❌ Kategoriya topilmadi")
+        return
+    
+    category = menu_data[category_key]
+    products = category["products"]
+    
+    text = f"{category['emoji']} <b>{category['name']}</b>\n\n"
+    
+    for product in products:
+        text += f"🍣 <b>{product['name']}</b>\n"
+        text += f"💰 <i>{product['price']:,} so'm</i>\n"
+        text += f"⏱️ {product['prep_time']} | {product['description']}\n\n"
+    
+    # Inline keyboard
+    keyboard = {"inline_keyboard": []}
+    
+    for product in products:
+        keyboard["inline_keyboard"].append([{
+            "text": f"➕ {product['name']} - {product['price']:,} so'm",
+            "callback_data": f"add_{product['id']}"
+        }])
+    
+    # Navigatsiya tugmalari
+    keyboard["inline_keyboard"].extend([
+        [{"text": "🛒 Savat", "callback_data": "view_cart"}],
+        [{"text": "📋 Barcha kategoriyalar", "callback_data": "show_all_products"}],
         [{"text": "🏠 Asosiy menyu", "callback_data": "main_menu"}]
     ])
     
@@ -618,6 +685,13 @@ def handle_callback(chat_id, callback_data):
             
         elif callback_data == "show_menu":
             show_full_menu(chat_id)
+            
+        elif callback_data == "show_all_products":
+            show_all_products(chat_id)
+            
+        elif callback_data.startswith("category_"):
+            category_key = callback_data.split("_", 1)[1]
+            show_category_products(chat_id, category_key)
             
         elif callback_data == "main_menu":
             send_message(chat_id, "🏠 Asosiy menyu", main_menu(chat_id))
