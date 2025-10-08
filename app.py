@@ -207,77 +207,60 @@ def main_menu(chat_id):
         }
     return keyboard
 
-def show_categories(chat_id):
-    """Kategoriyalarni ko'rsatish"""
-    keyboard = {
-        "keyboard": [
-            ["🍜 Issiq Taomlar", "🍕 Pizza va Burger"],
-            ["🍣 Sovuq Rollar", "🔥 Pishirilgan Rollar"],
-            ["⚡ Qovurilgan Rollar", "🍱 Sushi va Gunkan"],
-            ["🎎 Setlar", "🥤 Ichimliklar"],
-            ["⬅️ Asosiy menyu"]
-        ],
-        "resize_keyboard": True
-    }
-    
+def show_full_menu(chat_id):
+    """TO'LIQ MENYU - hamma mahsulotlar bir joyda"""
     text = f"""
-🎌 <b>TOKIO SUSHI PREMIUM MENYU</b> 🍱
+🎌 <b>TOKIO SUSHI PREMIUM - TO'LIQ MENYU</b> 🍱
 
 ⭐ <b>8 ta kategoriya, 90 ta mahsulot</b>
 🚚 <b>Yetkazib berish:</b> {DELIVERY_PRICE:,} so'm
 ⏰ <b>Tayyorlanish vaqti:</b> {PREPARATION_TIME}
 🕒 <b>Ish vaqti:</b> {WORK_HOURS}
 
-<b>Marhamat, kerakli bo'limni tanlang:</b>
-    """
-    send_message(chat_id, text, keyboard)
-
-def show_category_products(chat_id, category_key, start_index=0):
-    """Kategoriya mahsulotlarini ko'rsatish"""
-    if category_key not in menu_data:
-        send_message(chat_id, "❌ Kategoriya topilmadi")
-        return
+<b>Marhamat, barcha mahsulotlar:</b>
+"""
     
-    category = menu_data[category_key]
-    products = category["products"]
+    # Barcha kategoriyalarni ketma-ket chiqarish
+    for category_key, category in menu_data.items():
+        text += f"\n\n{category['emoji']} <b>{category['name']}</b>\n"
+        text += "─" * 30 + "\n"
+        
+        for product in category["products"]:
+            text += f"🍣 <b>{product['name']}</b>\n"
+            text += f"💰 <i>{product['price']:,} so'm</i>\n"
+            text += f"⏱️ {product['prep_time']} | {product['description']}\n\n"
     
-    # Sahifalash
-    end_index = min(start_index + 4, len(products))
-    current_products = products[start_index:end_index]
+    text += "\n🛒 <b>Mahsulot tanlash uchun pastdagi tugmalardan foydalaning</b>"
     
-    # Sahifa raqami
-    current_page = (start_index // 4) + 1
-    total_pages = (len(products) + 3) // 4
-    
-    text = f"{category['emoji']} <b>{category['name']}</b>\n\n"
-    text += f"📄 Sahifa: {current_page}/{total_pages}\n\n"
-    
-    for product in current_products:
-        text += f"🍣 {product['name']} - {product['price']:,} so'm\n"
-        text += f"⏱️ {product['prep_time']} | {product['description']}\n\n"
-    
-    # Inline keyboard
+    # Inline keyboard - barcha mahsulotlar uchun tugmalar
     keyboard = {"inline_keyboard": []}
     
-    for product in current_products:
-        keyboard["inline_keyboard"].append([{
-            "text": f"➕ {product['name']} - {product['price']:,} so'm",
-            "callback_data": f"add_{product['id']}"
-        }])
+    # Har bir kategoriya uchun alohida qator
+    for category_key, category in menu_data.items():
+        category_row = []
+        for product in category["products"]:
+            # Har bir mahsulot uchun tugma
+            category_row.append({
+                "text": f"➕ {product['name']}",
+                "callback_data": f"add_{product['id']}"
+            })
+            # Har 2 ta mahsulotdan keyin yangi qator
+            if len(category_row) == 2:
+                keyboard["inline_keyboard"].append(category_row)
+                category_row = []
+        
+        # Qolgan mahsulotlarni qo'shish
+        if category_row:
+            keyboard["inline_keyboard"].append(category_row)
+        
+        # Kategoriyalar orasiga bo'sh qator
+        keyboard["inline_keyboard"].append([{"text": "─" * 20, "callback_data": "none"}])
     
-    # Sahifalash tugmalari
-    nav_buttons = []
-    if start_index > 0:
-        nav_buttons.append({"text": "⬅️ Oldingi", "callback_data": f"prev_{category_key}_{start_index-4}"})
-    if end_index < len(products):
-        nav_buttons.append({"text": "Keyingi ➡️", "callback_data": f"next_{category_key}_{end_index}"})
-    
-    if nav_buttons:
-        keyboard["inline_keyboard"].append(nav_buttons)
-    
-    keyboard["inline_keyboard"].append([
-        {"text": "🛒 Savat", "callback_data": "view_cart"},
-        {"text": "📋 Menyu", "callback_data": "back_to_categories"}
+    # Asosiy tugmalar
+    keyboard["inline_keyboard"].extend([
+        [{"text": "🛒 Savatni ko'rish", "callback_data": "view_cart"}],
+        [{"text": "📞 Buyurtma berish", "callback_data": "place_order"}],
+        [{"text": "🏠 Asosiy menyu", "callback_data": "main_menu"}]
     ])
     
     send_message(chat_id, text, keyboard)
@@ -322,7 +305,7 @@ def add_to_cart(chat_id, product_id):
 def show_cart(chat_id):
     """Savatni ko'rsatish"""
     if chat_id not in user_data or "cart" not in user_data[chat_id] or not user_data[chat_id]["cart"]:
-        send_message(chat_id, "🛒 <b>Savatingiz bo'sh</b>")
+        send_message(chat_id, "🛒 <b>Savatingiz bo'sh</b>\n\nMarhamat, menyudan mahsulot tanlang!")
         return
     
     cart = user_data[chat_id]["cart"]
@@ -342,7 +325,7 @@ def show_cart(chat_id):
         "inline_keyboard": [
             [{"text": "✅ BUYURTMA BERISH", "callback_data": "place_order"}],
             [{"text": "🗑 Savatni tozalash", "callback_data": "clear_cart"}],
-            [{"text": "📝 Davom etish", "callback_data": "back_to_categories"}]
+            [{"text": "📋 Menyuni ko'rish", "callback_data": "show_menu"}]
         ]
     }
     
@@ -368,12 +351,20 @@ Buyurtma berish uchun telefon raqamingizni yuboring.
     send_message(chat_id, text, keyboard)
 
 def request_location(chat_id):
-    """Lokatsiya so'rash"""
+    """Lokatsiya so'rash - Google Maps va Yandex Maps"""
     keyboard = {
-        "keyboard": [[{
-            "text": "📍 Lokatsiyani yuborish",
-            "request_location": True
-        }]],
+        "keyboard": [
+            [{
+                "text": "📍 Google Maps orqali",
+                "request_location": True
+            }],
+            [{
+                "text": "🌐 Yandex Maps linkini yuborish"
+            }],
+            [{
+                "text": "🏠 Asosiy menyu"
+            }]
+        ],
         "resize_keyboard": True,
         "one_time_keyboard": True
     }
@@ -382,7 +373,13 @@ def request_location(chat_id):
 📍 <b>MANZILINGIZNI YUBORING</b>
 
 Yetkazib berish uchun manzilingizni yuboring.
-"📍 Lokatsiyani yuborish" tugmasini bosing yoki Google Maps linkini yuboring.
+
+<b>Variantlar:</b>
+• "📍 Google Maps orqali" - lokatsiyangizni avtomatik yuboring
+• "🌐 Yandex Maps linkini yuborish" - Yandex Maps linkini yuboring
+• Yoki aniq manzilingizni matn shaklida yozing
+
+📝 <i>Misol: Qarshi shahar, Amir Temur ko'chasi, 45-uy</i>
     """
     send_message(chat_id, text, keyboard)
 
@@ -416,6 +413,7 @@ def process_order(chat_id):
         "user_id": chat_id,
         "user_phone": user_info["phone"],
         "user_location": user_info["location"],
+        "location_type": user_info.get("location_type", "google_maps"),
         "items": cart.copy(),
         "total": total,
         "total_with_delivery": total_with_delivery,
@@ -443,24 +441,53 @@ def process_order(chat_id):
     send_message(chat_id, text, main_menu(chat_id))
     
     # Adminga xabar
-    maps_link = user_info['location']
-    if "http" not in maps_link and "maps" not in maps_link:
-        maps_link = f"https://maps.google.com/?q={maps_link}"
+    send_order_to_admin(order_id)
+
+def send_order_to_admin(order_id):
+    """Buyurtmani adminga yuborish"""
+    order = orders_data[order_id]
+    user_id = order["user_id"]
+    user_phone = order["user_phone"]
+    user_location = order["user_location"]
+    location_type = order["location_type"]
+    
+    # Xarita linklarini yaratish
+    maps_links = ""
+    if location_type == "google_maps":
+        if "http" not in user_location and "maps" not in user_location:
+            google_maps_link = f"https://maps.google.com/?q={user_location}"
+        else:
+            google_maps_link = user_location
+        maps_links = f"📍 <a href='{google_maps_link}'>Google Maps</a>"
+    
+    elif location_type == "yandex_maps":
+        if "http" not in user_location and "yandex" not in user_location:
+            yandex_maps_link = f"https://yandex.com/maps/?text={user_location}"
+        else:
+            yandex_maps_link = user_location
+        maps_links = f"🌐 <a href='{yandex_maps_link}'>Yandex Maps</a>"
+    
+    else:
+        # Matn manzil uchun ikkala xarita linki
+        google_maps_link = f"https://maps.google.com/?q={user_location}"
+        yandex_maps_link = f"https://yandex.com/maps/?text={user_location}"
+        maps_links = f"📍 <a href='{google_maps_link}'>Google Maps</a> | 🌐 <a href='{yandex_maps_link}'>Yandex Maps</a>"
     
     admin_text = f"""
 🆕 <b>YANGI BUYURTMA</b> #{order_id}
 
-👤 Mijoz ID: {chat_id}
-📞 Telefon: {user_info['phone']}
-📍 Manzil: <a href='{maps_link}'>Google Maps</a>
-💵 Mahsulotlar: {total:,} so'm
+👤 Mijoz ID: {user_id}
+📞 Telefon: {user_phone}
+📍 Manzil: {user_location}
+🗺️ Xarita: {maps_links}
+💵 Mahsulotlar: {order['total']:,} so'm
 🚚 Yetkazish: {DELIVERY_PRICE:,} so'm
-💰 Jami: {total_with_delivery:,} so'm
+💰 Jami: {order['total_with_delivery']:,} so'm
 ⏰ Vaqt: {datetime.now().strftime('%H:%M')}
 
-📦 Buyurtma:
+📦 <b>Buyurtma tarkibi:</b>
 """
-    for item in cart:
+    for item in order["items"]:
         admin_text += f"• {item['name']} - {item['price']:,} so'm\n"
     
     admin_keyboard = {
@@ -492,21 +519,11 @@ def handle_callback(chat_id, callback_data):
                 user_data[chat_id]["cart"] = []
             send_message(chat_id, "🗑 Savat tozalandi", main_menu(chat_id))
             
-        elif callback_data == "back_to_categories":
-            show_categories(chat_id)
+        elif callback_data == "show_menu":
+            show_full_menu(chat_id)
             
-        elif callback_data.startswith("prev_") or callback_data.startswith("next_"):
-            # Yangi: To'g'ri ajratish logikasi
-            parts = callback_data.split("_")
-            action = parts[0]  # "prev" yoki "next"
-            # Kategoriya kaliti (masalan: "issiq_taomlar")
-            if len(parts) > 3:
-                category_key = "_".join(parts[1:-1])
-            else:
-                category_key = parts[1]
-            start_index = int(parts[-1])  # Sahifa raqami
-            
-            show_category_products(chat_id, category_key, start_index)
+        elif callback_data == "main_menu":
+            send_message(chat_id, "🏠 Asosiy menyu", main_menu(chat_id))
             
         elif callback_data.startswith("accept_"):
             if str(chat_id) == ADMIN_ID:
@@ -614,7 +631,7 @@ def run_bot():
                                 send_message(chat_id, welcome_text, main_menu(chat_id))
                             
                             elif text == "🍱 Premium Menyu":
-                                show_categories(chat_id)
+                                show_full_menu(chat_id)  # O'ZGARDI: To'liq menyu ko'rsatiladi
                             
                             elif text == "🛒 Savat":
                                 show_cart(chat_id)
@@ -656,23 +673,8 @@ def run_bot():
                                 """
                                 send_message(chat_id, admin_text)
                             
-                            elif text == "⬅️ Asosiy menyu":
+                            elif text == "⬅️ Asosiy menyu" or text == "🏠 Asosiy menyu":
                                 send_message(chat_id, "🏠 Asosiy menyu", main_menu(chat_id))
-                            
-                            # Kategoriyalar
-                            category_map = {
-                                "🍜 Issiq Taomlar": "issiq_taomlar",
-                                "🍕 Pizza va Burger": "pizza_burger",
-                                "🍣 Sovuq Rollar": "sovuq_rollar", 
-                                "🔥 Pishirilgan Rollar": "pishirilgan_rollar",
-                                "⚡ Qovurilgan Rollar": "qovurilgan_rollar",
-                                "🍱 Sushi va Gunkan": "sushi_gunkan",
-                                "🎎 Setlar": "setlar",
-                                "🥤 Ichimliklar": "ichimliklar"
-                            }
-                            
-                            if text in category_map:
-                                show_category_products(chat_id, category_map[text], 0)
                             
                             # Telefon qabul qilish
                             elif "contact" in message:
@@ -685,7 +687,7 @@ def run_bot():
                                 send_message(chat_id, f"✅ Telefon raqamingiz qabul qilindi: {phone}")
                                 request_location(chat_id)
                             
-                            # Lokatsiya qabul qilish
+                            # Google Maps lokatsiya qabul qilish
                             elif "location" in message:
                                 location = message["location"]
                                 lat = location["latitude"]
@@ -695,16 +697,43 @@ def run_bot():
                                 if chat_id not in user_data:
                                     user_data[chat_id] = {}
                                 user_data[chat_id]["location"] = maps_url
-                                send_message(chat_id, f"✅ Manzilingiz qabul qilindi!\n📍 {maps_url}")
+                                user_data[chat_id]["location_type"] = "google_maps"
+                                send_message(chat_id, f"✅ Manzilingiz qabul qilindi!\n📍 Google Maps")
                                 
                                 if "cart" in user_data[chat_id] and user_data[chat_id]["cart"]:
                                     send_message(chat_id, "✅ Endi buyurtma berishingiz mumkin! \"🛒 Savat\" tugmasini bosing.", main_menu(chat_id))
                             
-                            # Google Maps linkini qabul qilish
+                            # Yandex Maps linkini qabul qilish
+                            elif text == "🌐 Yandex Maps linkini yuborish":
+                                send_message(chat_id, "🌐 Iltimos, Yandex Maps linkinigizni yuboring:")
+                            
+                            # Xarita linklarini qabul qilish
                             elif "maps.google.com" in text or "goo.gl/maps" in text:
                                 if chat_id not in user_data:
                                     user_data[chat_id] = {}
                                 user_data[chat_id]["location"] = text
+                                user_data[chat_id]["location_type"] = "google_maps"
+                                send_message(chat_id, f"✅ Google Maps manzilingiz qabul qilindi!")
+                                
+                                if "cart" in user_data[chat_id] and user_data[chat_id]["cart"]:
+                                    send_message(chat_id, "✅ Endi buyurtma berishingiz mumkin! \"🛒 Savat\" tugmasini bosing.", main_menu(chat_id))
+                            
+                            elif "yandex" in text and "maps" in text:
+                                if chat_id not in user_data:
+                                    user_data[chat_id] = {}
+                                user_data[chat_id]["location"] = text
+                                user_data[chat_id]["location_type"] = "yandex_maps"
+                                send_message(chat_id, f"✅ Yandex Maps manzilingiz qabul qilindi!")
+                                
+                                if "cart" in user_data[chat_id] and user_data[chat_id]["cart"]:
+                                    send_message(chat_id, "✅ Endi buyurtma berishingiz mumkin! \"🛒 Savat\" tugmasini bosing.", main_menu(chat_id))
+                            
+                            # Oddiy matn manzilni qabul qilish
+                            elif text and len(text) > 10 and text not in ["🍱 Premium Menyu", "🛒 Savat", "📦 Mening buyurtmalarim", "ℹ️ Ma'lumot", "👑 Admin Panel", "🏠 Asosiy menyu"]:
+                                if chat_id not in user_data:
+                                    user_data[chat_id] = {}
+                                user_data[chat_id]["location"] = text
+                                user_data[chat_id]["location_type"] = "text"
                                 send_message(chat_id, f"✅ Manzilingiz qabul qilindi!\n📍 {text}")
                                 
                                 if "cart" in user_data[chat_id] and user_data[chat_id]["cart"]:
