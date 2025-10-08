@@ -20,6 +20,10 @@ WORK_HOURS = "11:00 - 02:00"
 PREPARATION_TIME = "30-45 daqiqa"
 DISCOUNT_PERCENT = 20  # 20% chegirma
 
+# Karta ma'lumotlari
+CARD_NUMBER = "9860 3501 4052 5865"
+CARD_HOLDER = "SHOKHRUKH Y."
+
 # TO'LIQ MENYU MA'LUMOTLARI
 menu_data = {
     "issiq_taomlar": {
@@ -382,6 +386,101 @@ Yetkazib berish uchun manzilingizni yuboring.
     """
     send_message(chat_id, text, keyboard)
 
+def request_payment_method(chat_id):
+    """To'lov usulini so'rash"""
+    keyboard = {
+        "keyboard": [
+            ["💳 Karta orqali to'lash", "💵 Naqd pul"],
+            ["🏠 Asosiy menyu"]
+        ],
+        "resize_keyboard": True,
+        "one_time_keyboard": True
+    }
+    
+    text = """
+💳 <b>TO'LOV USULINI TANLANG</b>
+
+Iltimos, qulay to'lov usulini tanlang:
+
+• <b>💳 Karta orqali to'lash</b> - kartaga o'tkazma qilish
+• <b>💵 Naqd pul</b> - yetkazib berish paytida naqd pul
+    """
+    send_message(chat_id, text, keyboard)
+
+def show_card_payment(chat_id, order_id):
+    """Karta orqali to'lov ma'lumotlari"""
+    order = orders_data[order_id]
+    
+    text = f"""
+💳 <b>KARTA ORQALI TO'LOV</b>
+
+📦 Buyurtma raqami: #{order_id}
+💰 To'lov summasi: {order['total_with_delivery']:,} so'm
+
+<b>Karta ma'lumotlari:</b>
+💳 Karta raqami: <code>{CARD_NUMBER}</code>
+👤 Karta egasi: {CARD_HOLDER}
+
+💡 <b>To'lov qilgandan so'ng, chek rasmini @{ADMIN_ID} ga yuboring</b>
+
+✅ To'lov tasdiqlangandan so'ng buyurtmangiz tayyorlanadi.
+    """
+    
+    keyboard = {
+        "inline_keyboard": [
+            [{"text": "✅ To'lov qildim", "callback_data": f"payment_done_{order_id}"}],
+            [{"text": "🏠 Asosiy menyu", "callback_data": "main_menu"}]
+        ]
+    }
+    
+    send_message(chat_id, text, keyboard)
+
+def confirm_cash_payment(chat_id, order_id):
+    """Naqd to'lovni tasdiqlash"""
+    order = orders_data[order_id]
+    
+    text = f"""
+💵 <b>NAQD TO'LOV TASDIQLANDI</b>
+
+📦 Buyurtma raqami: #{order_id}
+💰 To'lov summasi: {order['total_with_delivery']:,} so'm
+✅ To'lov usuli: Naqd pul
+
+🎉 Buyurtmangiz qabul qilindi va tayyorlanmoqda!
+⏰ Tayyorlanish vaqti: {PREPARATION_TIME}
+
+📞 Bog'lanish: +998 91 211 12 15
+    """
+    
+    # Buyurtma holatini yangilash
+    orders_data[order_id]["status"] = "qabul_qilindi"
+    orders_data[order_id]["payment_method"] = "naqd"
+    orders_data[order_id]["payment_status"] = "kutilmoqda"
+    
+    send_message(chat_id, text, main_menu(chat_id))
+    
+    # Adminga naqd to'lov haqida xabar
+    admin_text = f"""
+💵 <b>NAQD TO'LOV - BUYURTMA #{order_id}</b>
+
+👤 Mijoz ID: {order['user_id']}
+📞 Telefon: {order['user_phone']}
+💰 Summa: {order['total_with_delivery']:,} so'm
+📍 Manzil: {order['user_location']}
+
+✅ To'lov usuli: Naqd pul
+🔄 Holat: To'lov kutilmoqda
+    """
+    
+    admin_keyboard = {
+        "inline_keyboard": [
+            [{"text": "✅ To'lov qabul qilindi", "callback_data": f"cash_paid_{order_id}"}],
+            [{"text": "❌ Bekor qilish", "callback_data": f"cancel_{order_id}"}]
+        ]
+    }
+    
+    send_message(ADMIN_ID, admin_text, admin_keyboard)
+
 def process_order(chat_id):
     """Buyurtmani qayta ishlash"""
     if chat_id not in user_data or "cart" not in user_data[chat_id] or not user_data[chat_id]["cart"]:
@@ -423,34 +522,16 @@ def process_order(chat_id):
         "total_with_discount": total_with_discount,
         "total_with_delivery": total_with_delivery,
         "status": "yangi",
+        "payment_method": None,
+        "payment_status": "kutilmoqda",
         "timestamp": datetime.now().isoformat()
     }
     
     # Savatni tozalash
     user_data[chat_id]["cart"] = []
     
-    # Mijozga xabar
-    delivery_time = datetime.now() + timedelta(minutes=45)
-    text = f"""
-✅ <b>BUYURTMA QABUL QILINDI!</b>
-
-📦 Buyurtma raqami: #{order_id}
-💵 Mahsulotlar: {total:,} so'm
-🎁 Chegirma ({DISCOUNT_PERCENT}%): -{discount_amount:,} so'm
-💳 Chegirma bilan: {total_with_discount:,} so'm
-🚚 Yetkazib berish: {DELIVERY_PRICE:,} so'm
-💰 <b>JAMI: {total_with_delivery:,} so'm</b>
-
-📞 Telefon: {user_info['phone']}
-📍 Manzil: {user_info['location']}
-⏰ Yetkazish vaqti: {delivery_time.strftime('%H:%M')}
-
-📞 Bog'lanish: +998 91 211 12 15
-    """
-    send_message(chat_id, text, main_menu(chat_id))
-    
-    # Adminga xabar
-    send_order_to_admin(order_id)
+    # To'lov usulini so'rash
+    request_payment_method(chat_id)
 
 def send_order_to_admin(order_id):
     """Buyurtmani adminga yuborish"""
@@ -482,6 +563,9 @@ def send_order_to_admin(order_id):
         yandex_maps_link = f"https://yandex.com/maps/?text={user_location}"
         maps_links = f"📍 <a href='{google_maps_link}'>Google Maps</a> | 🌐 <a href='{yandex_maps_link}'>Yandex Maps</a>"
     
+    payment_method = order.get("payment_method", "Tanlanmagan")
+    payment_status = order.get("payment_status", "kutilmoqda")
+    
     admin_text = f"""
 🆕 <b>YANGI BUYURTMA</b> #{order_id}
 
@@ -494,6 +578,8 @@ def send_order_to_admin(order_id):
 💳 Chegirma bilan: {order['total_with_discount']:,} so'm
 🚚 Yetkazish: {DELIVERY_PRICE:,} so'm
 💰 Jami: {order['total_with_delivery']:,} so'm
+💳 To'lov usuli: {payment_method}
+🔄 To'lov holati: {payment_status}
 ⏰ Vaqt: {datetime.now().strftime('%H:%M')}
 
 📦 <b>Buyurtma tarkibi:</b>
@@ -536,6 +622,19 @@ def handle_callback(chat_id, callback_data):
         elif callback_data == "main_menu":
             send_message(chat_id, "🏠 Asosiy menyu", main_menu(chat_id))
             
+        elif callback_data.startswith("payment_done_"):
+            order_id = int(callback_data.split("_")[2])
+            text = f"""
+✅ <b>TO'LOV MA'LUMOTLARI QABUL QILINDI</b>
+
+📦 Buyurtma raqami: #{order_id}
+💳 Iltimos, to'lov chekini @{ADMIN_ID} ga yuboring.
+
+⏳ To'lov tasdiqlangandan so'ng buyurtmangiz tayyorlanadi.
+📞 Bog'lanish: +998 91 211 12 15
+            """
+            send_message(chat_id, text, main_menu(chat_id))
+            
         elif callback_data.startswith("accept_"):
             if str(chat_id) == ADMIN_ID:
                 order_id = int(callback_data.split("_")[1])
@@ -570,6 +669,16 @@ def handle_callback(chat_id, callback_data):
                     user_id = orders_data[order_id]["user_id"]
                     user_phone = orders_data[order_id]["user_phone"]
                     send_message(chat_id, f"📞 Buyurtma #{order_id} mijoz telefon raqami: {user_phone}")
+            
+        elif callback_data.startswith("cash_paid_"):
+            if str(chat_id) == ADMIN_ID:
+                order_id = int(callback_data.split("_")[2])
+                if order_id in orders_data:
+                    orders_data[order_id]["payment_status"] = "to'langan"
+                    orders_data[order_id]["status"] = "qabul_qilindi"
+                    user_id = orders_data[order_id]["user_id"]
+                    send_message(user_id, f"✅ #{order_id} buyurtmangiz uchun to'lov qabul qilindi va tayyorlanmoqda!")
+                    send_message(chat_id, f"✅ #{order_id} buyurtma to'lovi tasdiqlandi")
                     
     except Exception as e:
         print(f"Callback xatosi: {e}")
@@ -688,6 +797,29 @@ def run_bot():
                             elif text == "⬅️ Asosiy menyu" or text == "🏠 Asosiy menyu":
                                 send_message(chat_id, "🏠 Asosiy menyu", main_menu(chat_id))
                             
+                            # To'lov usullari
+                            elif text == "💳 Karta orqali to'lash":
+                                # Oxirgi buyurtmani topish
+                                user_orders = [order_id for order_id, order in orders_data.items() if order["user_id"] == chat_id and order["status"] == "yangi"]
+                                if user_orders:
+                                    last_order_id = max(user_orders)
+                                    orders_data[last_order_id]["payment_method"] = "karta"
+                                    show_card_payment(chat_id, last_order_id)
+                                    send_order_to_admin(last_order_id)
+                                else:
+                                    send_message(chat_id, "❌ Aktiv buyurtma topilmadi")
+                            
+                            elif text == "💵 Naqd pul":
+                                # Oxirgi buyurtmani topish
+                                user_orders = [order_id for order_id, order in orders_data.items() if order["user_id"] == chat_id and order["status"] == "yangi"]
+                                if user_orders:
+                                    last_order_id = max(user_orders)
+                                    orders_data[last_order_id]["payment_method"] = "naqd"
+                                    confirm_cash_payment(chat_id, last_order_id)
+                                    send_order_to_admin(last_order_id)
+                                else:
+                                    send_message(chat_id, "❌ Aktiv buyurtma topilmadi")
+                            
                             # Telefon qabul qilish
                             elif "contact" in message:
                                 contact = message["contact"]
@@ -741,7 +873,7 @@ def run_bot():
                                     send_message(chat_id, "✅ Endi buyurtma berishingiz mumkin! \"🛒 Savat\" tugmasini bosing.", main_menu(chat_id))
                             
                             # Oddiy matn manzilni qabul qilish
-                            elif text and len(text) > 10 and text not in ["🍱 Premium Menyu", "🛒 Savat", "📦 Mening buyurtmalarim", "ℹ️ Ma'lumot", "👑 Admin Panel", "🏠 Asosiy menyu"]:
+                            elif text and len(text) > 10 and text not in ["🍱 Premium Menyu", "🛒 Savat", "📦 Mening buyurtmalarim", "ℹ️ Ma'lumot", "👑 Admin Panel", "🏠 Asosiy menyu", "💳 Karta orqali to'lash", "💵 Naqd pul"]:
                                 if chat_id not in user_data:
                                     user_data[chat_id] = {}
                                 user_data[chat_id]["location"] = text
