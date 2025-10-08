@@ -18,6 +18,7 @@ ADMIN_ID = "7548105589"
 DELIVERY_PRICE = 15000
 WORK_HOURS = "11:00 - 02:00"
 PREPARATION_TIME = "30-45 daqiqa"
+DISCOUNT_PERCENT = 20  # 20% chegirma
 
 # TO'LIQ MENYU MA'LUMOTLARI
 menu_data = {
@@ -237,24 +238,12 @@ def show_full_menu(chat_id):
     
     # Har bir kategoriya uchun alohida qator
     for category_key, category in menu_data.items():
-        category_row = []
         for product in category["products"]:
             # Har bir mahsulot uchun tugma
-            category_row.append({
+            keyboard["inline_keyboard"].append([{
                 "text": f"➕ {product['name']}",
                 "callback_data": f"add_{product['id']}"
-            })
-            # Har 2 ta mahsulotdan keyin yangi qator
-            if len(category_row) == 2:
-                keyboard["inline_keyboard"].append(category_row)
-                category_row = []
-        
-        # Qolgan mahsulotlarni qo'shish
-        if category_row:
-            keyboard["inline_keyboard"].append(category_row)
-        
-        # Kategoriyalar orasiga bo'sh qator
-        keyboard["inline_keyboard"].append([{"text": "─" * 20, "callback_data": "none"}])
+            }])
     
     # Asosiy tugmalar
     keyboard["inline_keyboard"].extend([
@@ -310,13 +299,19 @@ def show_cart(chat_id):
     
     cart = user_data[chat_id]["cart"]
     total = sum(item['price'] for item in cart)
-    total_with_delivery = total + DELIVERY_PRICE
+    
+    # 20% chegirma hisoblash
+    discount_amount = total * DISCOUNT_PERCENT // 100
+    total_with_discount = total - discount_amount
+    total_with_delivery = total_with_discount + DELIVERY_PRICE
     
     text = "🛒 <b>SAVATINGIZ</b>\n\n"
     for i, item in enumerate(cart, 1):
         text += f"{i}. {item['name']} - {item['price']:,} so'm\n"
     
     text += f"\n💵 Mahsulotlar: {total:,} so'm"
+    text += f"\n🎁 Chegirma ({DISCOUNT_PERCENT}%): -{discount_amount:,} so'm"
+    text += f"\n💳 Chegirma bilan: {total_with_discount:,} so'm"
     text += f"\n🚚 Yetkazish: {DELIVERY_PRICE:,} so'm"
     text += f"\n💰 <b>JAMI: {total_with_delivery:,} so'm</b>"
     text += f"\n⏰ Tayyorlanish: {PREPARATION_TIME}"
@@ -404,7 +399,11 @@ def process_order(chat_id):
     global order_counter
     cart = user_data[chat_id]["cart"]
     total = sum(item['price'] for item in cart)
-    total_with_delivery = total + DELIVERY_PRICE
+    
+    # 20% chegirma hisoblash
+    discount_amount = total * DISCOUNT_PERCENT // 100
+    total_with_discount = total - discount_amount
+    total_with_delivery = total_with_discount + DELIVERY_PRICE
     
     order_id = order_counter
     order_counter += 1
@@ -416,6 +415,8 @@ def process_order(chat_id):
         "location_type": user_info.get("location_type", "google_maps"),
         "items": cart.copy(),
         "total": total,
+        "discount_amount": discount_amount,
+        "total_with_discount": total_with_discount,
         "total_with_delivery": total_with_delivery,
         "status": "yangi",
         "timestamp": datetime.now().isoformat()
@@ -430,11 +431,15 @@ def process_order(chat_id):
 ✅ <b>BUYURTMA QABUL QILINDI!</b>
 
 📦 Buyurtma raqami: #{order_id}
-💰 Jami summa: {total_with_delivery:,} so'm
+💵 Mahsulotlar: {total:,} so'm
+🎁 Chegirma ({DISCOUNT_PERCENT}%): -{discount_amount:,} so'm
+💳 Chegirma bilan: {total_with_discount:,} so'm
+🚚 Yetkazib berish: {DELIVERY_PRICE:,} so'm
+💰 <b>JAMI: {total_with_delivery:,} so'm</b>
+
 📞 Telefon: {user_info['phone']}
 📍 Manzil: {user_info['location']}
 ⏰ Yetkazish vaqti: {delivery_time.strftime('%H:%M')}
-🚚 Yetkazib berish: {DELIVERY_PRICE:,} so'm
 
 📞 Bog'lanish: +998 91 211 12 15
     """
@@ -481,6 +486,8 @@ def send_order_to_admin(order_id):
 📍 Manzil: {user_location}
 🗺️ Xarita: {maps_links}
 💵 Mahsulotlar: {order['total']:,} so'm
+🎁 Chegirma ({DISCOUNT_PERCENT}%): -{order['discount_amount']:,} so'm
+💳 Chegirma bilan: {order['total_with_discount']:,} so'm
 🚚 Yetkazish: {DELIVERY_PRICE:,} so'm
 💰 Jami: {order['total_with_delivery']:,} so'm
 ⏰ Vaqt: {datetime.now().strftime('%H:%M')}
@@ -618,20 +625,20 @@ def run_bot():
                             text = message.get("text", "")
                             
                             if text == "/start":
-                                welcome_text = """
+                                welcome_text = f"""
 🎌 <b>TOKIO SUSHI PREMIUM</b> 🍱
 
 🏮 <b>Xush kelibsiz! Premium yapon oshxonasi</b>
 ⭐ 90 ta mahsulot
 🚚 Tezkor yetkazib berish
-💎 Premium xizmat
+🎁 <b>HAR BIR BUYURTMAGA {DISCOUNT_PERCENT}% CHEGIRMA!</b>
 
 📞 Bog'lanish: +998 91 211 12 15
                                 """
                                 send_message(chat_id, welcome_text, main_menu(chat_id))
                             
                             elif text == "🍱 Premium Menyu":
-                                show_full_menu(chat_id)  # O'ZGARDI: To'liq menyu ko'rsatiladi
+                                show_full_menu(chat_id)
                             
                             elif text == "🛒 Savat":
                                 show_cart(chat_id)
@@ -655,6 +662,7 @@ def run_bot():
 🕒 Ish vaqti: {WORK_HOURS}
 🚚 Yetkazib berish: {PREPARATION_TIME}
 💰 Yetkazish narxi: {DELIVERY_PRICE:,} so'm
+🎁 <b>Har bir buyurtmaga {DISCOUNT_PERCENT}% chegirma!</b>
 
 📞 Bog'lanish: +998 91 211 12 15
 📍 Manzil: Qarshi shahar 
