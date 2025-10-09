@@ -2,34 +2,17 @@ import requests
 import json
 import time
 import os
-import logging
 from datetime import datetime, timedelta
 from flask import Flask
 from threading import Thread
 import schedule
-import sqlite3
-import re
 
 app = Flask(__name__)
 
 print("🎌 TOKIO SUSHI PREMIUM BOT yuklanmoqda...")
 
-# Logging sozlamalari
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler("bot.log"),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger(__name__)
-
-# Xavfsizlik sozlamalari
-BOT_TOKEN = os.environ["BOT_TOKEN"]  # Environment variable talab qilinadi
-if not BOT_TOKEN:
-    raise ValueError("BOT_TOKEN environment variable o'rnatilmagan")
-
+# Sozlamalar
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "8132196767:AAFcTMKbjP6CEsigfR-SJ-sdxbVwH2AsxSM")
 BASE_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/"
 ADMIN_ID = "7548105589"
 DELIVERY_PRICE = 15000
@@ -94,7 +77,7 @@ menu_data = {
             {"id": 33, "name": "Эби Голд", "price": 110000, "description": "Сыр.Лосось.Креветки в кляре.Огурец.Лук", "prep_time": "18 daqiqa"},
             {"id": 34, "name": "Лосось (гриль)", "price": 93000, "description": "Сыр.Унаги соус.Лосось.Массаго", "prep_time": "15 daqiqa"},
             {"id": 35, "name": "Калифорния с креветками", "price": 80000, "description": "Сыр.Огурец.Креветки тигровые.Массаго красс", "prep_time": "12 daqiqa"},
-            {"id": 36, "name": "Калифорния с лососем", "price": 76000, "description": "Сыр.Огурец.Лосось.Массаago красс", "prep_time": "12 daqiqa"},
+            {"id": 36, "name": "Калифорния с лососем", "price": 76000, "description": "Сыр.Огурец.Лосось.Массаго красс", "prep_time": "12 daqiqa"},
             {"id": 37, "name": "Калифорния с крабом", "price": 70000, "description": "Сыр.Огурец.Снежный краб.Массаго красный", "prep_time": "12 daqiqa"},
             {"id": 38, "name": "Ролл Огурец", "price": 65000, "description": "Сыр.Стружка тунца.Огурец", "prep_time": "10 daqiqa"}
         ]
@@ -119,7 +102,7 @@ menu_data = {
             {"id": 46, "name": "Темпура (Тунец)", "price": 75000, "description": "Огурец.Сыр.Тунец", "prep_time": "15 daqiqa"},
             {"id": 47, "name": "Темпура Угорь", "price": 71000, "description": "Сыр.Огурец.Угорь.Массаго красс.Унаги соус", "prep_time": "15 daqiqa"},
             {"id": 48, "name": "Темпура с креветками", "price": 70000, "description": "Сыр.Огурец.Креветки тигровые.Массаго красс.Унаги соус", "prep_time": "15 daqiqa"},
-            {"id": 49, "name": "Темпура с лососem", "price": 66000, "description": "Сыр.Огурец.Лосось.Унаги соус.Кунжут", "prep_time": "14 daqiqa"},
+            {"id": 49, "name": "Темпура с лососем", "price": 66000, "description": "Сыр.Огурец.Лосось.Унаги соус.Кунжут", "prep_time": "14 daqiqa"},
             {"id": 50, "name": "Темпура Курица", "price": 48000, "description": "Айсберг.Майонез.Курица.Унаги соус", "prep_time": "12 daqiqa"}
         ]
     },
@@ -150,7 +133,7 @@ menu_data = {
             {"id": 65, "name": "Сет Ямамото 32шт", "price": 290000, "description": "Филадельфия классик 8шт + Калифорния классик 8шт + Ролл с креветками 8шт + Ролл Чука 8шт", "prep_time": "35 daqiqa"},
             {"id": 66, "name": "Сет Идеал 32шт", "price": 260000, "description": "Филадельфия классик 8шт + Калифорния Кунсут 8шт + Калифорния Черный 8шт + Дракон ролл 8шт", "prep_time": "32 daqiqa"},
             {"id": 67, "name": "Сет Окей 24шт", "price": 200000, "description": "Филадельфия классик 8шт + Запеченый лосось 8шт + Темпура лосось 8шт", "prep_time": "30 daqiqa"},
-            {"id": 68, "name": "Сet Сакура 24шт", "price": 180000, "description": "Филадельфия классик 4шт + Канада Голд 4шт + Мини ролл лосось 8шт + Темпура лосось 8шт", "prep_time": "28 daqiqa"},
+            {"id": 68, "name": "Сет Сакура 24шт", "price": 180000, "description": "Филадельфия классик 4шт + Канада Голд 4шт + Мини ролл лосось 8шт + Темпура лосось 8шт", "prep_time": "28 daqiqa"},
             {"id": 69, "name": "Сет Классический 32шт", "price": 150000, "description": "Мини ролл лосось 8шт + Мини ролл огурец 8шт + Мини ролл тунец 8шт + Мини ролл краб 8шт", "prep_time": "25 daqiqa"}
         ]
     },
@@ -184,71 +167,11 @@ menu_data = {
 }
 
 # Ma'lumotlar bazasi
-class Database:
-    def __init__(self, db_path='tokio_bot.db'):
-        self.db_path = db_path
-        self.init_db()
-    
-    def init_db(self):
-        conn = sqlite3.connect(self.db_path)
-        c = conn.cursor()
-        c.execute('''CREATE TABLE IF NOT EXISTS orders
-                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                      user_id INTEGER,
-                      order_data TEXT,
-                      status TEXT,
-                      payment_method TEXT,
-                      payment_status TEXT,
-                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
-        c.execute('''CREATE TABLE IF NOT EXISTS users
-                     (user_id INTEGER PRIMARY KEY,
-                      user_data TEXT,
-                      last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
-        conn.commit()
-        conn.close()
-    
-    def save_user_data(self, user_id, user_data):
-        conn = sqlite3.connect(self.db_path)
-        c = conn.cursor()
-        c.execute('''INSERT OR REPLACE INTO users (user_id, user_data) 
-                     VALUES (?, ?)''', (user_id, json.dumps(user_data)))
-        conn.commit()
-        conn.close()
-    
-    def get_user_data(self, user_id):
-        conn = sqlite3.connect(self.db_path)
-        c = conn.cursor()
-        c.execute('SELECT user_data FROM users WHERE user_id = ?', (user_id,))
-        result = c.fetchone()
-        conn.close()
-        return json.loads(result[0]) if result else {}
-    
-    def save_order(self, order_id, order_data):
-        conn = sqlite3.connect(self.db_path)
-        c = conn.cursor()
-        c.execute('''INSERT INTO orders (id, user_id, order_data, status, payment_method, payment_status)
-                     VALUES (?, ?, ?, ?, ?, ?)''',
-                  (order_id, order_data['user_id'], json.dumps(order_data), 
-                   order_data['status'], order_data.get('payment_method'), 
-                   order_data.get('payment_status')))
-        conn.commit()
-        conn.close()
-    
-    def get_order(self, order_id):
-        conn = sqlite3.connect(self.db_path)
-        c = conn.cursor()
-        c.execute('SELECT order_data FROM orders WHERE id = ?', (order_id,))
-        result = c.fetchone()
-        conn.close()
-        return json.loads(result[0]) if result else None
-
-# Global o'zgaruvchilar
-db = Database()
 user_data = {}
 orders_data = {}
 order_counter = 1
 
-# ==================== YANGI FUNKSIYALAR ====================
+# ==================== ASOSIY FUNKSIYALAR ====================
 
 def get_uzbekistan_time():
     """O'zbekiston vaqtini olish"""
@@ -267,108 +190,10 @@ def send_message(chat_id, text, keyboard=None):
         if keyboard:
             data["reply_markup"] = json.dumps(keyboard)
         response = requests.post(url, json=data, timeout=10)
-        if response.status_code != 200:
-            logger.error(f"Xabar yuborishda xato: {response.status_code}")
         return response.status_code == 200
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Network error for chat {chat_id}: {e}")
+    except Exception as e:
+        print(f"Xabar yuborishda xato: {e}")
         return False
-    except Exception as e:
-        logger.error(f"Unexpected error for chat {chat_id}: {e}")
-        return False
-
-def extract_coordinates_from_yandex_link(link):
-    """Yandex Maps linkidan koordinatalarni olish"""
-    try:
-        # Yandex Maps linkidan koordinatalarni qidirish
-        patterns = [
-            r'ymaps://[^?]+\?ll=([\d.]+)%2C([\d.]+)',
-            r'yandex\.ru/maps/\?ll=([\d.]+)%2C([\d.]+)',
-            r'yandex\.com/maps/\?ll=([\d.]+)%2C([\d.]+)',
-        ]
-        
-        for pattern in patterns:
-            match = re.search(pattern, link)
-            if match:
-                lon, lat = match.groups()
-                return float(lat), float(lon)
-        
-        # Agar oddiy koordinatalar bo'lsa
-        coord_pattern = r'([\d.]+)[,\s]+([\d.]+)'
-        match = re.search(coord_pattern, link)
-        if match:
-            lat, lon = match.groups()
-            return float(lat), float(lon)
-            
-    except Exception as e:
-        logger.error(f"Yandex linkini tahlil qilishda xato: {e}")
-    
-    return None
-
-def create_google_maps_link(lat, lon):
-    """Koordinatalardan Google Maps link yaratish"""
-    return f"https://www.google.com/maps?q={lat},{lon}"
-
-def create_yandex_maps_link(lat, lon):
-    """Koordinatalardan Yandex Maps link yaratish"""
-    return f"https://yandex.com/maps/?ll={lon},{lat}&z=16"
-
-def process_location_data(chat_id, location_text, location_type):
-    """Lokatsiya ma'lumotlarini qayta ishlash"""
-    try:
-        user_info = user_data.get(chat_id, {})
-        
-        if location_type == "google_maps":
-            # Google Maps linkini saqlash
-            user_info["location"] = location_text
-            user_info["location_type"] = "google_maps"
-            user_info["maps_links"] = {
-                "google_maps": location_text,
-                "yandex_maps": None
-            }
-            
-        elif location_type == "yandex_maps":
-            # Yandex Maps linkini tahlil qilish
-            coords = extract_coordinates_from_yandex_link(location_text)
-            
-            if coords:
-                lat, lon = coords
-                google_link = create_google_maps_link(lat, lon)
-                yandex_link = create_yandex_maps_link(lat, lon)
-                
-                user_info["location"] = f"{lat}, {lon}"
-                user_info["location_type"] = "yandex_maps"
-                user_info["maps_links"] = {
-                    "google_maps": google_link,
-                    "yandex_maps": yandex_link,
-                    "coordinates": {"lat": lat, "lon": lon}
-                }
-            else:
-                # Agar koordinatalarni olish mumkin bo'lmasa
-                user_info["location"] = location_text
-                user_info["location_type"] = "yandex_maps"
-                user_info["maps_links"] = {
-                    "google_maps": None,
-                    "yandex_maps": location_text
-                }
-                
-        elif location_type == "text":
-            # Matn manzil
-            user_info["location"] = location_text
-            user_info["location_type"] = "text"
-            user_info["maps_links"] = {
-                "google_maps": f"https://maps.google.com/?q={location_text}",
-                "yandex_maps": f"https://yandex.com/maps/?text={location_text}"
-            }
-        
-        user_data[chat_id] = user_info
-        db.save_user_data(chat_id, user_info)
-        
-        return user_info["maps_links"]
-        
-    except Exception as e:
-        logger.error(f"Lokatsiya ma'lumotlarini qayta ishlashda xato: {e}")
-        return None
 
 def main_menu(chat_id):
     """Asosiy menyu"""
@@ -442,6 +267,7 @@ def show_full_menu(chat_id):
     # Xabarni qismlarga bo'lib yuborish
     messages = []
     if len(text) > 4096:
+        # Agar xabar juda uzun bo'lsa, qismlarga bo'lamiz
         parts = []
         current_part = ""
         
@@ -455,17 +281,21 @@ def show_full_menu(chat_id):
         if current_part:
             parts.append(current_part)
         
+        # Birinchi qismni yuboramiz
         send_message(chat_id, parts[0])
         
+        # Qolgan qismlarni yuboramiz
         for part in parts[1:]:
             send_message(chat_id, part)
         
+        # Keyboardni oxirgi qismga qo'shamiz
         send_message(chat_id, "🛒 <b>Mahsulot tanlash uchun tugmalardan foydalaning:</b>", keyboard)
     else:
         send_message(chat_id, text, keyboard)
 
 def add_to_cart(chat_id, product_id):
     """Mahsulotni savatga qo'shish"""
+    # Mahsulotni topish
     product = None
     for category in menu_data.values():
         for p in category["products"]:
@@ -479,14 +309,15 @@ def add_to_cart(chat_id, product_id):
         send_message(chat_id, "❌ Mahsulot topilmadi")
         return
     
+    # Foydalanuvchi ma'lumotlarini tekshirish
     if chat_id not in user_data:
         user_data[chat_id] = {"cart": []}
     
     if "cart" not in user_data[chat_id]:
         user_data[chat_id]["cart"] = []
     
+    # Savatga qo'shish
     user_data[chat_id]["cart"].append(product)
-    db.save_user_data(chat_id, user_data[chat_id])
     
     text = f"""
 ✅ <b>SAVATGA QO'SHILDI</b>
@@ -508,6 +339,7 @@ def show_cart(chat_id):
     cart = user_data[chat_id]["cart"]
     total = sum(item['price'] for item in cart)
     
+    # 20% chegirma hisoblash
     discount_amount = total * DISCOUNT_PERCENT // 100
     total_with_discount = total - discount_amount
     total_with_delivery = total_with_discount + DELIVERY_PRICE
@@ -651,13 +483,14 @@ def confirm_cash_payment(chat_id, order_id):
 📞 Bog'lanish: +998 91 211 12 15
     """
     
+    # Buyurtma holatini yangilash
     orders_data[order_id]["status"] = "qabul_qilindi"
     orders_data[order_id]["payment_method"] = "naqd"
     orders_data[order_id]["payment_status"] = "kutilmoqda"
-    db.save_order(order_id, orders_data[order_id])
     
     send_message(chat_id, text, main_menu(chat_id))
     
+    # Adminga naqd to'lov haqida xabar
     admin_text = f"""
 💵 <b>NAQD TO'LOV - BUYURTMA #{order_id}</b>
 
@@ -685,6 +518,7 @@ def process_order(chat_id):
         send_message(chat_id, "❌ Savatingiz bo'sh")
         return
     
+    # Telefon va manzilni tekshirish
     user_info = user_data.get(chat_id, {})
     
     if "phone" not in user_info:
@@ -695,10 +529,12 @@ def process_order(chat_id):
         request_location(chat_id)
         return
     
+    # Buyurtmani saqlash
     global order_counter
     cart = user_data[chat_id]["cart"]
     total = sum(item['price'] for item in cart)
     
+    # 20% chegirma hisoblash
     discount_amount = total * DISCOUNT_PERCENT // 100
     total_with_discount = total - discount_amount
     total_with_delivery = total_with_discount + DELIVERY_PRICE
@@ -711,7 +547,6 @@ def process_order(chat_id):
         "user_phone": user_info["phone"],
         "user_location": user_info["location"],
         "location_type": user_info.get("location_type", "google_maps"),
-        "maps_links": user_info.get("maps_links", {}),
         "items": cart.copy(),
         "total": total,
         "discount_amount": discount_amount,
@@ -723,10 +558,10 @@ def process_order(chat_id):
         "timestamp": get_uzbekistan_time().isoformat()
     }
     
+    # Savatni tozalash
     user_data[chat_id]["cart"] = []
-    db.save_user_data(chat_id, user_data[chat_id])
-    db.save_order(order_id, orders_data[order_id])
     
+    # To'lov usulini so'rash
     request_payment_method(chat_id)
 
 def send_order_to_admin(order_id):
@@ -736,46 +571,28 @@ def send_order_to_admin(order_id):
     user_phone = order["user_phone"]
     user_location = order["user_location"]
     location_type = order["location_type"]
-    maps_links = order.get("maps_links", {})
     
     # Xarita linklarini yaratish
-    maps_links_text = ""
-    
-    if maps_links:
-        google_maps_link = maps_links.get("google_maps")
-        yandex_maps_link = maps_links.get("yandex_maps")
-        
-        links = []
-        if google_maps_link:
-            links.append(f"📍 <a href='{google_maps_link}'>Google Maps</a>")
-        if yandex_maps_link:
-            links.append(f"🌐 <a href='{yandex_maps_link}'>Yandex Maps</a>")
-        
-        if links:
-            maps_links_text = " | ".join(links)
-        else:
-            # Agar linklar bo'lmasa, oddiy manzilni ko'rsatish
-            maps_links_text = f"📍 {user_location}"
-    else:
-        # Eskilik uchun qo'llab-quvvatlash
-        if location_type == "google_maps":
-            if "http" not in user_location and "maps" not in user_location:
-                google_maps_link = f"https://maps.google.com/?q={user_location}"
-            else:
-                google_maps_link = user_location
-            maps_links_text = f"📍 <a href='{google_maps_link}'>Google Maps</a>"
-        
-        elif location_type == "yandex_maps":
-            if "http" not in user_location and "yandex" not in user_location:
-                yandex_maps_link = f"https://yandex.com/maps/?text={user_location}"
-            else:
-                yandex_maps_link = user_location
-            maps_links_text = f"🌐 <a href='{yandex_maps_link}'>Yandex Maps</a>"
-        
-        else:
+    maps_links = ""
+    if location_type == "google_maps":
+        if "http" not in user_location and "maps" not in user_location:
             google_maps_link = f"https://maps.google.com/?q={user_location}"
+        else:
+            google_maps_link = user_location
+        maps_links = f"📍 <a href='{google_maps_link}'>Google Maps</a>"
+    
+    elif location_type == "yandex_maps":
+        if "http" not in user_location and "yandex" not in user_location:
             yandex_maps_link = f"https://yandex.com/maps/?text={user_location}"
-            maps_links_text = f"📍 <a href='{google_maps_link}'>Google Maps</a> | 🌐 <a href='{yandex_maps_link}'>Yandex Maps</a>"
+        else:
+            yandex_maps_link = user_location
+        maps_links = f"🌐 <a href='{yandex_maps_link}'>Yandex Maps</a>"
+    
+    else:
+        # Matn manzil uchun ikkala xarita linki
+        google_maps_link = f"https://maps.google.com/?q={user_location}"
+        yandex_maps_link = f"https://yandex.com/maps/?text={user_location}"
+        maps_links = f"📍 <a href='{google_maps_link}'>Google Maps</a> | 🌐 <a href='{yandex_maps_link}'>Yandex Maps</a>"
     
     payment_method = order.get("payment_method", "Tanlanmagan")
     payment_status = order.get("payment_status", "kutilmoqda")
@@ -786,7 +603,7 @@ def send_order_to_admin(order_id):
 👤 Mijoz ID: {user_id}
 📞 Telefon: {user_phone}
 📍 Manzil: {user_location}
-🗺️ Xarita: {maps_links_text}
+🗺️ Xarita: {maps_links}
 💵 Mahsulotlar: {order['total']:,} so'm
 🎁 Chegirma ({DISCOUNT_PERCENT}%): -{order['discount_amount']:,} so'm
 💳 Chegirma bilan: {order['total_with_discount']:,} so'm
@@ -828,7 +645,6 @@ def handle_callback(chat_id, callback_data):
         elif callback_data == "clear_cart":
             if chat_id in user_data:
                 user_data[chat_id]["cart"] = []
-                db.save_user_data(chat_id, user_data[chat_id])
             send_message(chat_id, "🗑 Savat tozalandi", main_menu(chat_id))
             
         elif callback_data == "show_menu":
@@ -855,7 +671,6 @@ def handle_callback(chat_id, callback_data):
                 order_id = int(callback_data.split("_")[1])
                 if order_id in orders_data:
                     orders_data[order_id]["status"] = "qabul_qilindi"
-                    db.save_order(order_id, orders_data[order_id])
                     user_id = orders_data[order_id]["user_id"]
                     send_message(user_id, f"✅ #{order_id} buyurtmangiz qabul qilindi va tayyorlanmoqda!")
                     send_message(chat_id, f"✅ #{order_id} buyurtma qabul qilindi")
@@ -865,7 +680,6 @@ def handle_callback(chat_id, callback_data):
                 order_id = int(callback_data.split("_")[1])
                 if order_id in orders_data:
                     orders_data[order_id]["status"] = "tayyor"
-                    db.save_order(order_id, orders_data[order_id])
                     user_id = orders_data[order_id]["user_id"]
                     send_message(user_id, f"🎉 #{order_id} buyurtmangiz tayyor! Yetkazib berishmoqda...")
                     send_message(chat_id, f"✅ #{order_id} buyurtma tayyor deb belgilandi")
@@ -875,7 +689,6 @@ def handle_callback(chat_id, callback_data):
                 order_id = int(callback_data.split("_")[1])
                 if order_id in orders_data:
                     orders_data[order_id]["status"] = "bekor_qilindi"
-                    db.save_order(order_id, orders_data[order_id])
                     user_id = orders_data[order_id]["user_id"]
                     send_message(user_id, f"❌ #{order_id} buyurtmangiz bekor qilindi. Iltimos, qaytadan urinib ko'ring.")
                     send_message(chat_id, f"❌ #{order_id} buyurtma bekor qilindi")
@@ -894,13 +707,12 @@ def handle_callback(chat_id, callback_data):
                 if order_id in orders_data:
                     orders_data[order_id]["payment_status"] = "to'langan"
                     orders_data[order_id]["status"] = "qabul_qilindi"
-                    db.save_order(order_id, orders_data[order_id])
                     user_id = orders_data[order_id]["user_id"]
                     send_message(user_id, f"✅ #{order_id} buyurtmangiz uchun to'lov qabul qilindi va tayyorlanmoqda!")
                     send_message(chat_id, f"✅ #{order_id} buyurtma to'lovi tasdiqlandi")
                     
     except Exception as e:
-        logger.error(f"Callback xatosi: {e}")
+        print(f"Callback xatosi: {e}")
         send_message(chat_id, "❌ Xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring.")
 
 # ==================== UPTIME ROBOT ====================
@@ -909,9 +721,9 @@ def keep_alive():
     """UptimeRobot uchun keep-alive"""
     try:
         requests.get("https://tokiosushibot.onrender.com/health", timeout=5)
-        logger.info("🔄 Keep-alive signal sent")
-    except Exception as e:
-        logger.warning(f"⚠️ Keep-alive failed: {e}")
+        print("🔄 Keep-alive signal sent")
+    except:
+        print("⚠️ Keep-alive failed")
 
 def start_keep_alive():
     """Keep-alive ni ishga tushirish"""
@@ -935,7 +747,7 @@ def ping():
 # ==================== ASOSIY BOT LOGIKASI ====================
 
 def run_bot():
-    logger.info("🚀 Tokio Sushi Premium Bot ishga tushdi!")
+    print("🚀 Tokio Sushi Premium Bot ishga tushdi!")
     
     last_update_id = None
     while True:
@@ -955,10 +767,6 @@ def run_bot():
                             chat_id = update["message"]["chat"]["id"]
                             message = update["message"]
                             text = message.get("text", "")
-                            
-                            # Foydalanuvchi ma'lumotlarini yuklash
-                            if chat_id not in user_data:
-                                user_data[chat_id] = db.get_user_data(chat_id)
                             
                             if text == "/start":
                                 welcome_text = f"""
@@ -1022,30 +830,26 @@ def run_bot():
                             
                             # To'lov usullari
                             elif text == "💳 Karta orqali to'lash":
+                                # Oxirgi buyurtmani topish
                                 user_orders = [order_id for order_id, order in orders_data.items() if order["user_id"] == chat_id and order["status"] == "yangi"]
                                 if user_orders:
                                     last_order_id = max(user_orders)
                                     orders_data[last_order_id]["payment_method"] = "karta"
-                                    db.save_order(last_order_id, orders_data[last_order_id])
                                     show_card_payment(chat_id, last_order_id)
                                     send_order_to_admin(last_order_id)
                                 else:
                                     send_message(chat_id, "❌ Aktiv buyurtma topilmadi")
                             
                             elif text == "💵 Naqd pul":
+                                # Oxirgi buyurtmani topish
                                 user_orders = [order_id for order_id, order in orders_data.items() if order["user_id"] == chat_id and order["status"] == "yangi"]
                                 if user_orders:
                                     last_order_id = max(user_orders)
                                     orders_data[last_order_id]["payment_method"] = "naqd"
-                                    db.save_order(last_order_id, orders_data[last_order_id])
                                     confirm_cash_payment(chat_id, last_order_id)
                                     send_order_to_admin(last_order_id)
                                 else:
                                     send_message(chat_id, "❌ Aktiv buyurtma topilmadi")
-                            
-                            # Yandex Maps linkini qabul qilish
-                            elif text == "🌐 Yandex Maps linkini yuborish":
-                                send_message(chat_id, "🌐 Iltimos, Yandex Maps linkinigizni yuboring:")
                             
                             # Telefon qabul qilish
                             elif "contact" in message:
@@ -1055,7 +859,6 @@ def run_bot():
                                 if chat_id not in user_data:
                                     user_data[chat_id] = {}
                                 user_data[chat_id]["phone"] = phone
-                                db.save_user_data(chat_id, user_data[chat_id])
                                 send_message(chat_id, f"✅ Telefon raqamingiz qabul qilindi: {phone}")
                                 request_location(chat_id)
                             
@@ -1066,38 +869,50 @@ def run_bot():
                                 lon = location["longitude"]
                                 maps_url = f"https://maps.google.com/?q={lat},{lon}"
                                 
-                                maps_links = process_location_data(chat_id, maps_url, "google_maps")
-                                if maps_links:
-                                    send_message(chat_id, f"✅ Manzilingiz qabul qilindi!\n📍 Google Maps")
-                                    
-                                    if "cart" in user_data[chat_id] and user_data[chat_id]["cart"]:
-                                        send_message(chat_id, "✅ Endi buyurtma berishingiz mumkin! \"🛒 Savat\" tugmasini bosing.", main_menu(chat_id))
+                                if chat_id not in user_data:
+                                    user_data[chat_id] = {}
+                                user_data[chat_id]["location"] = maps_url
+                                user_data[chat_id]["location_type"] = "google_maps"
+                                send_message(chat_id, f"✅ Manzilingiz qabul qilindi!\n📍 Google Maps")
+                                
+                                if "cart" in user_data[chat_id] and user_data[chat_id]["cart"]:
+                                    send_message(chat_id, "✅ Endi buyurtma berishingiz mumkin! \"🛒 Savat\" tugmasini bosing.", main_menu(chat_id))
+                            
+                            # Yandex Maps linkini qabul qilish
+                            elif text == "🌐 Yandex Maps linkini yuborish":
+                                send_message(chat_id, "🌐 Iltimos, Yandex Maps linkinigizni yuboring:")
                             
                             # Xarita linklarini qabul qilish
-                            elif "yandex" in text and "maps" in text:
-                                maps_links = process_location_data(chat_id, text, "yandex_maps")
-                                if maps_links:
-                                    send_message(chat_id, f"✅ Yandex Maps manzilingiz qabul qilindi!")
-                                    
-                                    if "cart" in user_data[chat_id] and user_data[chat_id]["cart"]:
-                                        send_message(chat_id, "✅ Endi buyurtma berishingiz mumkin! \"🛒 Savat\" tugmasini bosing.", main_menu(chat_id))
-                            
                             elif "maps.google.com" in text or "goo.gl/maps" in text:
-                                maps_links = process_location_data(chat_id, text, "google_maps")
-                                if maps_links:
-                                    send_message(chat_id, f"✅ Google Maps manzilingiz qabul qilindi!")
-                                    
-                                    if "cart" in user_data[chat_id] and user_data[chat_id]["cart"]:
-                                        send_message(chat_id, "✅ Endi buyurtma berishingiz mumkin! \"🛒 Savat\" tugmasini bosing.", main_menu(chat_id))
+                                if chat_id not in user_data:
+                                    user_data[chat_id] = {}
+                                user_data[chat_id]["location"] = text
+                                user_data[chat_id]["location_type"] = "google_maps"
+                                send_message(chat_id, f"✅ Google Maps manzilingiz qabul qilindi!")
+                                
+                                if "cart" in user_data[chat_id] and user_data[chat_id]["cart"]:
+                                    send_message(chat_id, "✅ Endi buyurtma berishingiz mumkin! \"🛒 Savat\" tugmasini bosing.", main_menu(chat_id))
+                            
+                            elif "yandex" in text and "maps" in text:
+                                if chat_id not in user_data:
+                                    user_data[chat_id] = {}
+                                user_data[chat_id]["location"] = text
+                                user_data[chat_id]["location_type"] = "yandex_maps"
+                                send_message(chat_id, f"✅ Yandex Maps manzilingiz qabul qilindi!")
+                                
+                                if "cart" in user_data[chat_id] and user_data[chat_id]["cart"]:
+                                    send_message(chat_id, "✅ Endi buyurtma berishingiz mumkin! \"🛒 Savat\" tugmasini bosing.", main_menu(chat_id))
                             
                             # Oddiy matn manzilni qabul qilish
-                            elif text and len(text) > 10 and text not in ["🍱 Premium Menyu", "🛒 Savat", "📦 Mening buyurtmalarim", "ℹ️ Ma'lumot", "👑 Admin Panel", "🏠 Asosiy menyu", "💳 Karta orqali to'lash", "💵 Naqd pul", "🌐 Yandex Maps linkini yuborish"]:
-                                maps_links = process_location_data(chat_id, text, "text")
-                                if maps_links:
-                                    send_message(chat_id, f"✅ Manzilingiz qabul qilindi!\n📍 {text}")
-                                    
-                                    if "cart" in user_data[chat_id] and user_data[chat_id]["cart"]:
-                                        send_message(chat_id, "✅ Endi buyurtma berishingiz mumkin! \"🛒 Savat\" tugmasini bosing.", main_menu(chat_id))
+                            elif text and len(text) > 10 and text not in ["🍱 Premium Menyu", "🛒 Savat", "📦 Mening buyurtmalarim", "ℹ️ Ma'lumot", "👑 Admin Panel", "🏠 Asosiy menyu", "💳 Karta orqali to'lash", "💵 Naqd pul"]:
+                                if chat_id not in user_data:
+                                    user_data[chat_id] = {}
+                                user_data[chat_id]["location"] = text
+                                user_data[chat_id]["location_type"] = "text"
+                                send_message(chat_id, f"✅ Manzilingiz qabul qilindi!\n📍 {text}")
+                                
+                                if "cart" in user_data[chat_id] and user_data[chat_id]["cart"]:
+                                    send_message(chat_id, "✅ Endi buyurtma berishingiz mumkin! \"🛒 Savat\" tugmasini bosing.", main_menu(chat_id))
                         
                         elif "callback_query" in update:
                             callback = update["callback_query"]
@@ -1109,7 +924,7 @@ def run_bot():
             time.sleep(1)
             
         except Exception as e:
-            logger.error(f"Asosiy bot xatosi: {e}")
+            print(f"Xato: {e}")
             time.sleep(3)
 
 if __name__ == "__main__":
