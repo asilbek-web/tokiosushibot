@@ -55,7 +55,7 @@ menu_data = {
             {"id": 13, "name": "Ролл с крабом", "price": 66000, "description": "Сыр.Огурец.Снежный краб", "prep_time": "14 daqiqa"},
             {"id": 14, "name": "Ролл с лососем", "price": 77000, "description": "Сыр.Огурецы.кунжут,сырная шапка,лосось,унаги соус", "prep_time": "15 daqiqa"},
             {"id": 15, "name": "Ролл Калифорния", "price": 70000, "description": "Сыр.Огурецы.снежный краб.икра массаго.сырная шапка.унаги соус", "prep_time": "14 daqiqa"},
-            {"id": 16, "name": "Ролл с курицой", "price": 55000, "description": "Майонез.Салат Айзберг.курица.сырная шапка", "prep_time": "12 daqiqa"},
+            {"id": 16, "name": "Ролл с курицей", "price": 55000, "description": "Майонез.Салат Айзберг.курица.сырная шапка", "prep_time": "12 daqiqa"},
             {"id": 94, "name": "Лосось", "price": 66000, "description": "Лосось, Кунжут", "prep_time": "15 daqiqa"},
             {"id": 95, "name": "Темпура с крабом", "price": 55000, "description": "Краб.Мойонез.Унаги соус", "prep_time": "15 daqiqa"},
             {"id": 96, "name": "Креветки", "price": 70000, "description": "Креветки, сырная шапка", "prep_time": "15 daqiqa"},
@@ -209,7 +209,7 @@ def main_menu(chat_id):
     if str(chat_id) == ADMIN_ID:
         keyboard = {
             "keyboard": [
-                ["🍱 Premium Menyu", "🛒 Savat"],
+                ["🍽 Mazali Menyu", "🛒 Savat"],
                 ["📦 Mening buyurtmalarim", "ℹ️ Ma'lumot"],
                 ["👑 Admin Panel"]
             ],
@@ -218,7 +218,7 @@ def main_menu(chat_id):
     else:
         keyboard = {
             "keyboard": [
-                ["🍱 Premium Menyu", "🛒 Savat"],
+                ["🍽 Mazali Menyu", "🛒 Savat"],
                 ["📦 Mening buyurtmalarim", "ℹ️ Ma'lumot"]
             ],
             "resize_keyboard": True
@@ -226,9 +226,9 @@ def main_menu(chat_id):
     return keyboard
 
 def show_full_menu(chat_id):
-    """TO'LIQ MENYU - RUS TILIDA"""
+    """MAZALI MENYU - RUS TILIDA"""
     text = f"""
-🎌 <b>TOKIO SUSHI PREMIUM - ПОЛНОЕ МЕНЮ</b> 🍱
+🎌 <b>TOKIO SUSHI - МАЗАЛИ МЕНЮ</b> 🍱
 
 🎎 <b><i>Суши - это искусство которое можно сьесть!</i></b>
 
@@ -807,7 +807,7 @@ def run_bot():
                                 """
                                 send_message(chat_id, welcome_text, main_menu(chat_id))
                             
-                            elif text == "🍱 Premium Menyu":
+                            elif text == "🍽 Mazali Menyu":
                                 show_full_menu(chat_id)
                             
                             elif text == "🛒 Savat":
@@ -932,7 +932,7 @@ def run_bot():
                                 create_order_from_cart(chat_id)
                             
                             # Oddiy matn manzilni qabul qilish
-                            elif text and len(text) > 10 and text not in ["🍱 Premium Menyu", "🛒 Savat", "📦 Mening buyurtmalarim", "ℹ️ Ma'lumot", "👑 Admin Panel", "🏠 Asosiy menyu", "💳 Оплата картой", "💵 Наличные", "📍 Через Google Maps", "🌐 Отправить Yandex Maps ссылку"]:
+                            elif text and len(text) > 10 and text not in ["🍽 Mazali Menyu", "🛒 Savat", "📦 Mening buyurtmalarim", "ℹ️ Ma'lumot", "👑 Admin Panel", "🏠 Asosiy menyu", "💳 Оплата картой", "💵 Наличные", "📍 Через Google Maps", "🌐 Отправить Yandex Maps ссылку"]:
                                 if chat_id not in user_data:
                                     user_data[chat_id] = {}
                                 user_data[chat_id]["location"] = text
