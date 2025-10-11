@@ -43,115 +43,112 @@ menu_data = {
         "name": "🍣 ХОЛОДНЫЕ РОЛЛЫ",
         "emoji": "🍣",
         "products": [
-            {"id": 1, "name": "Филадельфия Голд", "price": 120000, "description": "Сыр.Лосось.Огурец.Угорь.Унаги соус.Тунец.Кунжут.Массаго икра", "prep_time": "20 daqiqa", "image_url": "https://ibb.co/GQC6b0Jx", "composition": ["Гурч", "Лосось", "Моццарелла сыр", "Майонез"]},
-            {"id": 2, "name": "Филадельфия (Тунец)", "price": 90000, "description": "Сыр.Тунец", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/LzWDsSLL", "composition": ["Гурч", "Тунец", "Моццарелла сыр"]},
-            {"id": 3, "name": "Филадельфия Классик", "price": 80000, "description": "Сыр.Огурецы.Лосось", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/x8mtrwnr", "composition": ["Гурч", "Лосось", "Огурец", "Моццарелла сыр"]},
-            {"id": 4, "name": "Эби Голд", "price": 110000, "description": "Сыр.Лосось.Креветки в кляре.Огурец.Лук", "prep_time": "18 daqiqa", "image_url": "https://ibb.co/ymzTLB2d", "composition": ["Гурч", "Лосось", "Креветки", "Огурец", "Лук"]},
-            {"id": 5, "name": "Лосось (гриль)", "price": 93000, "description": "Сыр.Унаги соус.Лосось.Массаго", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/qMwVCNkJ", "composition": ["Гурч", "Лосось гриль", "Унаги соус", "Массаго"]},
-            {"id": 6, "name": "Калифорния с креветками", "price": 80000, "description": "Сыр.Огурец.Креветки тигровые.Массаго красс", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/npfwvNQ", "composition": ["Гурч", "Креветки", "Огурец", "Массаго"]},
-            {"id": 7, "name": "Калифорния с лососем", "price": 76000, "description": "Сыр.Огурец.Лосось.Массаго красс", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/ZRX11xwV", "composition": ["Гурч", "Лосось", "Огурец", "Массаго"]},
-            {"id": 8, "name": "Калифорния с крабом", "price": 70000, "description": "Сыр.Огурец.Снежный краб.Массаго красный", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/cXNm1Lws", "composition": ["Гурч", "Краб", "Огурец", "Массаго"]},
-            {"id": 9, "name": "Ролл Огурец", "price": 65000, "description": "Сыр.Стружка тунца.Огурец", "prep_time": "10 daqiqa", "image_url": "https://ibb.co/gLGNmQNL", "composition": ["Гурч", "Огурец", "Стружка тунца"]},
-            {"id": 91, "name": "Ролл в Кунжуте", "price": 50000, "description": "Сыр.Кунжут.Краб", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/MxFj5fc9", "composition": ["Гурч", "Кунжут", "Краб"]},
-            {"id": 92, "name": "Дракон", "price": 75000, "description": "Сыр.Угорь.Огурец", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/TBMTxXkK", "composition": ["Гурч", "Угорь", "Огурец"]},
-            {"id": 93, "name": "Канада GOLD", "price": 85000, "description": "Сыр.Лосось.Огурец.Угорь.Унаги соус.Кунжут", "prep_time": "20 daqiqa", "image_url": "https://ibb.co/Q7tpSZRW", "composition": ["Гурч", "Лосось", "Огурец", "Угорь", "Унаги соус"]}
+            {"id": 1, "name": "Филадельфия Голд", "price": 120000, "description": "Сыр.Лосось.Огурец.Угорь.Унаги соус.Тунец.Кунжут.Массаго икра", "prep_time": "20 daqiqa", "image_url": "https://ibb.co/MxFj5fc9", "composition": ["Гурч", "Лосось", "Моццарелла сыр", "Майонез"]},
+            {"id": 2, "name": "Филадельфия (Тунец)", "price": 90000, "description": "Сыр.Тунец", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/ymzTLB2d", "composition": ["Гурч", "Тунец", "Моццарелла сыр"]},
+            {"id": 3, "name": "Филадельфия Классик", "price": 80000, "description": "Сыр.Огурецы.Лосось", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/gLGNmQNL", "composition": ["Гурч", "Лосось", "Огурец", "Моццарелла сыр"]},
+            {"id": 4, "name": "Эби Голд", "price": 110000, "description": "Сыр.Лосось.Креветки в кляре.Огурец.Лук", "prep_time": "18 daqiqa", "image_url": "https://ibb.co/TBMTxXkK", "composition": ["Гурч", "Лосось", "Креветки", "Огурец", "Лук"]},
+            {"id": 5, "name": "Лосось (гриль)", "price": 93000, "description": "Сыр.Унаги соус.Лосось.Массаго", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/Q7tpSZRW", "composition": ["Гурч", "Лосось гриль", "Унаги соус", "Массаго"]},
+            {"id": 6, "name": "Калифорния с креветками", "price": 80000, "description": "Сыр.Огурец.Креветки тигровые.Массаго красс", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/LzWDsSLL", "composition": ["Гурч", "Креветки", "Огурец", "Массаго"]},
+            {"id": 7, "name": "Калифорния с лососем", "price": 76000, "description": "Сыр.Огурец.Лосось.Массаго красс", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/x8mtrwnr", "composition": ["Гурч", "Лосось", "Огурец", "Массаго"]},
+            {"id": 8, "name": "Калифорния с крабом", "price": 70000, "description": "Сыр.Огурец.Снежный краб.Массаго красный", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/GQC6b0Jx", "composition": ["Гурч", "Краб", "Огурец", "Массаго"]},
+            {"id": 9, "name": "Ролл Огурец", "price": 65000, "description": "Сыр.Стружка тунца.Огурец", "prep_time": "10 daqiqa", "image_url": "https://ibb.co/qMwVCNkJ", "composition": ["Гурч", "Огурец", "Стружка тунца"]},
+            {"id": 91, "name": "Ролл в Кунжуте", "price": 50000, "description": "Сыр.Кунжут.Краб", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/npfwvNQ", "composition": ["Гурч", "Кунжут", "Краб"]},
+            {"id": 92, "name": "Дракон", "price": 75000, "description": "Сыр.Угорь.Огурец", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/cXNm1Lws", "composition": ["Гурч", "Угорь", "Огурец"]},
+            {"id": 93, "name": "Канада GOLD", "price": 85000, "description": "Сыр.Лосось.Огурец.Угорь.Унаги соус.Кунжут", "prep_time": "20 daqiqa", "image_url": "https://ibb.co/ZRX11xwV", "composition": ["Гурч", "Лосось", "Огурец", "Угорь", "Унаги соус"]}
         ]
     },
     "zapechennye": {
         "name": "🔥 ЗАПЕЧЕННЫЕ ФИРМЕННЫЕ РОЛЛЫ ОТ:",
         "emoji": "🔥",
         "products": [
-            {"id": 10, "name": "Ролл Филадельфия Стейк", "price": 95000, "description": "Сыр.лосось.огурец.сырная шапка", "prep_time": "18 daqiqa", "image_url": "https://ibb.co/C5qhrcSR", "composition": ["Гурч", "Лосось", "Огурец", "Сырная шапка"]},
-            {"id": 11, "name": "Ролл с креветкой", "price": 80000, "description": "Сыр.Тигровые креветки.сырная шапка.Огурец.кунжут", "prep_time": "16 daqiqa", "image_url": "https://ibb.co/V03yy7Jy", "composition": ["Гурч", "Креветки", "Сырная шапка", "Огурец"]},
-            {"id": 12, "name": "Ролл с угрем", "price": 80000, "description": "Сыр.огурецы.кунжут.сырная шапка.угорь", "prep_time": "16 daqiqa", "image_url": "https://ibb.co/TD83xGMz", "composition": ["Гурч", "Угорь", "Сырная шапка", "Огурец"]},
-            {"id": 13, "name": "Ролл с крабом", "price": 66000, "description": "Сыр.Огурец.Снежный краб", "prep_time": "14 daqiqa", "image_url": "https://ibb.co/Zzn5hb1c", "composition": ["Гурч", "Краб", "Огурец"]},
-            {"id": 14, "name": "Ролл с лососем", "price": 77000, "description": "Сыр.Огурецы.кунжут,сырная шапка,лосось,унаги соус", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/VZkcJx2", "composition": ["Гурч", "Лосось", "Сырная шапка", "Огурец"]},
-            {"id": 15, "name": "Ролл Калифорния", "price": 70000, "description": "Сыр.Огурецы.снежный краб.икра массаго.сырная шапка.унаги соус", "prep_time": "14 daqiqa", "image_url": "https://ibb.co/XfGFW7Ss", "composition": ["Гурч", "Краб", "Сырная шапка", "Огурец"]},
-            {"id": 16, "name": "Ролл с курицей", "price": 55000, "description": "Майонез.Салат Айзберг.курица.сырная шапка", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/zWPhtZ2m", "composition": ["Гурч", "Курица", "Сырная шапка", "Салат Айзберг"]},
-            {"id": 94, "name": "Лосось", "price": 66000, "description": "Лосось, Кунжут", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/MxzTgnLD", "composition": ["Гурч", "Лосось", "Кунжут"]},
-            {"id": 95, "name": "Темпура с крабом", "price": 55000, "description": "Краб.Мойонез.Унаги соус", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/1JRBHPQj", "composition": ["Гурч", "Краб", "Унаги соус"]},
-            {"id": 96, "name": "Креветки", "price": 70000, "description": "Креветки, сырная шапка", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/d4QM7zfJ", "composition": ["Гурч", "Креветки", "Сырная шапка"]},
-            {"id": 97, "name": "Темпура запеченный", "price": 70000, "description": "Сыр.Краб.Огурец", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/QFjbcnG9", "composition": ["Гурч", "Краб", "Огурец"]}
+            {"id": 10, "name": "Ролл Филадельфия Стейк", "price": 95000, "description": "Сыр.лосось.огурец.сырная шапка", "prep_time": "18 daqiqa", "image_url": "https://ibb.co/V03yy7Jy", "composition": ["Гурч", "Лосось", "Огурец", "Сырная шапка"]},
+            {"id": 11, "name": "Ролл с креветкой", "price": 80000, "description": "Сыр.Тигровые креветки.сырная шапка.Огурец.кунжут", "prep_time": "16 daqiqa", "image_url": "https://ibb.co/zWPhtZ2m", "composition": ["Гурч", "Креветки", "Сырная шапка", "Огурец"]},
+            {"id": 12, "name": "Ролл с угрем", "price": 80000, "description": "Сыр.огурецы.кунжут.сырная шапка.угорь", "prep_time": "16 daqiqa", "image_url": "https://ibb.co/C5qhrcSR", "composition": ["Гурч", "Угорь", "Сырная шапка", "Огурец"]},
+            {"id": 13, "name": "Ролл с крабом", "price": 66000, "description": "Сыр.Огурец.Снежный краб", "prep_time": "14 daqiqa", "image_url": "https://ibb.co/VZkcJx2", "composition": ["Гурч", "Краб", "Огурец"]},
+            {"id": 14, "name": "Ролл с лососем", "price": 77000, "description": "Сыр.Огурецы.кунжут,сырная шапка,лосось,унаги соус", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/TD83xGMz", "composition": ["Гурч", "Лосось", "Сырная шапка", "Огурец"]},
+            {"id": 15, "name": "Ролл Калифорния", "price": 70000, "description": "Сыр.Огурецы.снежный краб.икра массаго.сырная шапка.унаги соус", "prep_time": "14 daqiqa", "image_url": "https://ibb.co/Zzn5hb1c", "composition": ["Гурч", "Краб", "Сырная шапка", "Огурец"]},
+            {"id": 16, "name": "Ролл с курицей", "price": 55000, "description": "Майонез.Салат Айзберг.курица.сырная шапка", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/XfGFW7Ss", "composition": ["Гурч", "Курица", "Сырная шапка", "Салат Айзберг"]},
+            {"id": 94, "name": "ТЕМПУРА c Лосось", "price": 66000, "description": "Лосось, Кунжут", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/MxzTgnLD", "composition": ["Гурч", "Лосось", "Кунжут"]},
+            {"id": 95, "name": "Темпура с крабом", "price": 55000, "description": "Краб.Мойонез.Унаги соус", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/bj64nKKm", "composition": ["Гурч", "Краб", "Унаги соус"]},
+            {"id": 96, "name": "ТЕМПУРА Креветки", "price": 70000, "description": "Креветки, сырная шапка", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/1JRBHPQj", "composition": ["Гурч", "Креветки", "Сырная шапка"]},
+            {"id": 97, "name": "Темпура запеченный", "price": 70000, "description": "Сыр.Краб.Огурец", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/CKC4dXxm", "composition": ["Гурч", "Краб", "Огурец"]}
         ]
     },
     "jarennye_rolly": {
         "name": "⚡ ЖАРЕНЫЕ РОЛЛЫ",
         "emoji": "⚡",
         "products": [
-            {"id": 17, "name": "Темпура (Тунец)", "price": 75000, "description": "Огурец.Сыр.Тунец", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/qQJVGwz", "composition": ["Гурч", "Тунец", "Огурец"]},
-            {"id": 18, "name": "Темпура Угорь", "price": 71000, "description": "Сыр.Огурец.Угорь.Массаго красс.Унаги соус", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/bj64nKKm", "composition": ["Гурч", "Угорь", "Огурец", "Унаги соус"]},
-            {"id": 19, "name": "Темпура с креветками", "price": 70000, "description": "Сыр.Огурец.Креветки тигровые.Массаго красс.Унаги соус", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/CKC4dXxm", "composition": ["Гурч", "Креветки", "Огурец", "Унаги соус"]},
-            {"id": 20, "name": "Темпура с лососем", "price": 66000, "description": "Сыр.Огурец.Лосось.Унаги соус.Кунжут", "prep_time": "14 daqiqa", "image_url": "https://ibb.co/DfnTqrM8", "composition": ["Гурч", "Лосось", "Огурец", "Унаги соус"]},
-            {"id": 21, "name": "Темпура Курица", "price": 48000, "description": "Айсберг.Майонез.Курица.Унаги соус", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/mF8yM6TC", "composition": ["Гурч", "Курица", "Салат Айсберг", "Унаги соус"]},
-            {"id": 98, "name": "Ясареные роялы", "price": 71000, "description": "Запеченные роллы с унаги соусом", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/JWN5qYyb", "composition": ["Гурч", "Ассорти", "Унаги соус"]}
+            {"id": 17, "name": "Темпура (Тунец)", "price": 75000, "description": "Огурец.Сыр.Тунец", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/QFjbcnG9", "composition": ["Гурч", "Тунец", "Огурец"]},
+            {"id": 18, "name": "Темпура Угорь", "price": 71000, "description": "Сыр.Огурец.Угорь.Массаго красс.Унаги соус", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/d4QM7zfJ", "composition": ["Гурч", "Угорь", "Огурец", "Унаги соус"]},
+            {"id": 19, "name": "Темпура с креветками", "price": 70000, "description": "Сыр.Огурец.Креветки тигровые.Массаго красс.Унаги соус", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/1JRBHPQj", "composition": ["Гурч", "Креветки", "Огурец", "Унаги соус"]},
+            {"id": 20, "name": "Темпура с лососем", "price": 66000, "description": "Сыр.Огурец.Лосось.Унаги соус.Кунжут", "prep_time": "14 daqiqa", "image_url": "https://ibb.co/MxzTgnLD", "composition": ["Гурч", "Лосось", "Огурец", "Унаги соус"]},
+            {"id": 21, "name": "Темпура Курица", "price": 48000, "description": "Айсберг.Майонез.Курица.Унаги соус", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/qQJVGwz", "composition": ["Гурч", "Курица", "Салат Айсберг", "Унаги соус"]},
         ]
     },
     "sety": {
         "name": "🎎 СЕТЛАР",
         "emoji": "🎎",
         "products": [
-            {"id": 22, "name": "Сет Токио 48шт", "price": 390000, "description": "Дракон ролл 8шт + Филадельфия классик 8шт + Темпура Лосось 8шт + Краб Запеченый 16шт + Калифорния Лосось 8шт", "prep_time": "40 daqiqa", "image_url": "https://ibb.co/8Dkf54z0", "composition": ["Дракон ролл", "Филадельфия классик", "Темпура Лосось", "Краб Запеченый", "Калифорния Лосось"]},
-            {"id": 23, "name": "Сет Ямамото 32шт", "price": 290000, "description": "Филадельфия классик 8шт + Калифорния классик 8шт + Ролл с креветками 8шт + Ролл Чука 8шт", "prep_time": "35 daqiqa", "image_url": "https://ibb.co/DPpPLQgg", "composition": ["Филадельфия классик", "Калифорния классик", "Ролл с креветками", "Ролл Чука"]},
-            {"id": 24, "name": "Сет Идеал 32шт", "price": 260000, "description": "Филадельфия классик 8шт + Калифорния Кунсут 8шт + Калифорния Черный 8шт + Дракон ролл 8шт", "prep_time": "32 daqiqa", "image_url": "https://ibb.co/gZpQSSzf", "composition": ["Филадельфия классик", "Калифорния Кунсут", "Калифорния Черный", "Дракон ролл"]},
-            {"id": 25, "name": "Сет Окей 24шт", "price": 200000, "description": "Филадельфия классик 8шт + Запеченый лосось 8шт + Темпура лосось 8шт", "prep_time": "30 daqiqa", "image_url": "https://ibb.co/sdBH78W4", "composition": ["Филадельфия классик", "Запеченый лосось", "Темпура лосось"]},
-            {"id": 26, "name": "Сет Сакура 24шт", "price": 180000, "description": "Филадельфия классик 4шт + Канада Голд 4шт + Мини ролл лосось 8шт + Темпура лосось 8шт", "prep_time": "28 daqiqa", "image_url": "https://ibb.co/dNZyGMn", "composition": ["Филадельфия классик", "Канада Голд", "Мини ролл лосось", "Темпура лосось"]},
-            {"id": 27, "name": "Сет Классический 32шт", "price": 150000, "description": "Мини ролл лосось 8шт + Мини ролл огурец 8шт + Мини ролл тунец 8шт + Мини ролл краб 8шт", "prep_time": "25 daqiqa", "image_url": "https://ibb.co/fVjKB1vS", "composition": ["Мини ролл лосось", "Мини ролл огурец", "Мини ролл тунец", "Мини ролл краб"]}
+            {"id": 22, "name": "Сет Токио 48шт", "price": 390000, "description": "Дракон ролл 8шт + Филадельфия классик 8шт + Темпура Лосось 8шт + Краб Запеченый 16шт + Калифорния Лосось 8шт", "prep_time": "40 daqiqa", "image_url": "https://ibb.co/3ycXwTn3", "composition": ["Дракон ролл", "Филадельфия классик", "Темпура Лосось", "Краб Запеченый", "Калифорния Лосось"]},
+            {"id": 23, "name": "Сет Ямамото 32шт", "price": 290000, "description": "Филадельфия классик 8шт + Калифорния классик 8шт + Ролл с креветками 8шт + Ролл Чука 8шт", "prep_time": "35 daqiqa", "image_url": "https://ibb.co/DHsDJyTf", "composition": ["Филадельфия классик", "Калифорния классик", "Ролл с креветками", "Ролл Чука"]},
+            {"id": 24, "name": "Сет Идеал 32шт", "price": 260000, "description": "Филадельфия классик 8шт + Калифорния Кунсут 8шт + Калифорния Черный 8шт + Дракон ролл 8шт", "prep_time": "32 daqiqa", "image_url": "https://ibb.co/bMnZDM8v", "composition": ["Филадельфия классик", "Калифорния Кунсут", "Калифорния Черный", "Дракон ролл"]},
+            {"id": 25, "name": "Сет Окей 24шт", "price": 200000, "description": "Филадельфия классик 8шт + Запеченый лосось 8шт + Темпура лосось 8шт", "prep_time": "30 daqiqa", "image_url": "https://ibb.co/YFfW3pFJ", "composition": ["Филадельфия классик", "Запеченый лосось", "Темпура лосось"]},
+            {"id": 26, "name": "Сет Сакура 24шт", "price": 180000, "description": "Филадельфия классик 4шт + Канада Голд 4шт + Мини ролл лосось 8шт + Темпура лосось 8шт", "prep_time": "28 daqiqa", "image_url": "https://ibb.co/FLrCy969", "composition": ["Филадельфия классик", "Канада Голд", "Мини ролл лосось", "Темпура лосось"]},
+            {"id": 27, "name": "Сет Классический 32шт", "price": 150000, "description": "Мини ролл лосось 8шт + Мини ролл огурец 8шт + Мини ролл тунец 8шт + Мини ролл краб 8шт", "prep_time": "25 daqiqa", "image_url": "https://ibb.co/Q3B6yMxV", "composition": ["Мини ролл лосось", "Мини ролл огурец", "Мини ролл тунец", "Мини ролл краб"]}
         ]
     },
     "sushi_gunkan": {
         "name": "🍱 СУШИ ВА ГУНКАН",
         "emoji": "🍱",
         "products": [
-            {"id": 28, "name": "Гункан Тунец", "price": 30000, "description": "Tunetsli gunkan", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/JWYVRq3Z", "composition": ["Гурч", "Тунец"]},
-            {"id": 29, "name": "Суши Тунец", "price": 25000, "description": "Tunetsli sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/yck5fm10", "composition": ["Гурч", "Тунец"]},
-            {"id": 30, "name": "Мини Тунец", "price": 34000, "description": "Mini tunets sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/VpSTV2jZ", "composition": ["Гурч", "Тунец"]},
-            {"id": 31, "name": "Гункан Лосось", "price": 24000, "description": "Lososli gunkan", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/wZ8cHQ3B", "composition": ["Гурч", "Лосось"]},
-            {"id": 32, "name": "Суши Лосось", "price": 20000, "description": "Lososli sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/3ycXwTn3", "composition": ["Гурч", "Лосось"]},
-            {"id": 33, "name": "Мини Лосось", "price": 34000, "description": "Mini losos sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/bMnZDM8v", "composition": ["Гурч", "Лосось"]},
-            {"id": 34, "name": "Гункан Угорь", "price": 24000, "description": "Ugorli gunkan", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/FLrCy969", "composition": ["Гурч", "Угорь"]},
-            {"id": 35, "name": "Суши Угорь", "price": 23000, "description": "Ugorli sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/Q3B6yMxV", "composition": ["Гурч", "Угорь"]},
-            {"id": 36, "name": "Мини Угорь", "price": 34000, "description": "Mini ugor sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/YFfW3pFJ", "composition": ["Гурч", "Угорь"]},
-            {"id": 37, "name": "Гункан Массаго", "price": 24000, "description": "Massago gunkan", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/DHsDJyTf", "composition": ["Гурч", "Массаго"]},
-            {"id": 38, "name": "Суши Креветка", "price": 20000, "description": "Qisqichbaqali sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/rfbG3L2h", "composition": ["Гурч", "Креветка"]},
-            {"id": 39, "name": "Мини Краб", "price": 23000, "description": "Mini krab sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/Xx1ghHBw", "composition": ["Гурч", "Краб"]},
-            {"id": 40, "name": "Мини Огурец", "price": 15000, "description": "Mini bodring sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/HT83N6gt", "composition": ["Гурч", "Огурец"]}
+            {"id": 28, "name": "Гункан Тунец", "price": 30000, "description": "Tunetsli gunkan", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/dNZyGMn", "composition": ["Гурч", "Тунец"]},
+            {"id": 29, "name": "Суши Тунец", "price": 25000, "description": "Tunetsli sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/VpSTV2jZ", "composition": ["Гурч", "Тунец"]},
+            {"id": 30, "name": "Мини Тунец", "price": 34000, "description": "Mini tunets sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/8Dkf54z0", "composition": ["Гурч", "Тунец"]},
+            {"id": 31, "name": "Гункан Лосось", "price": 24000, "description": "Lososli gunkan", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/gZpQSSzf", "composition": ["Гурч", "Лосось"]},
+            {"id": 32, "name": "Суши Лосось", "price": 20000, "description": "Lososli sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/JWYVRq3Z", "composition": ["Гурч", "Лосось"]},
+            {"id": 33, "name": "Мини Лосось", "price": 34000, "description": "Mini losos sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/DfnTqrM8", "composition": ["Гурч", "Лосось"]},
+            {"id": 34, "name": "Гункан Угорь", "price": 24000, "description": "Ugorli gunkan", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/sdBH78W4", "composition": ["Гурч", "Угорь"]},
+            {"id": 35, "name": "Суши Угорь", "price": 23000, "description": "Ugorli sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/yck5fm10", "composition": ["Гурч", "Угорь"]},
+            {"id": 36, "name": "Мини Угорь", "price": 34000, "description": "Mini ugor sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/mF8yM6TC", "composition": ["Гурч", "Угорь"]},
+            {"id": 37, "name": "Гункан Массаго", "price": 24000, "description": "Massago gunkan", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/fVjKB1vS", "composition": ["Гурч", "Массаго"]},
+            {"id": 38, "name": "Суши Креветка", "price": 20000, "description": "Qisqichbaqali sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/wZ8cHQ3B", "composition": ["Гурч", "Креветка"]},
+            {"id": 39, "name": "Мини Краб", "price": 23000, "description": "Mini krab sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/DPpPLQgg", "composition": ["Гурч", "Краб"]},
+            {"id": 40, "name": "Мини Огурец", "price": 15000, "description": "Mini bodring sushi", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/JWN5qYyb", "composition": ["Гурч", "Огурец"]}
         ]
     },
     "goryachaya_eda": {
         "name": "🍜 ГОРЯЧАЯ ЕДА",
         "emoji": "🍜",
         "products": [
-            {"id": 41, "name": "Рамэн Классик", "price": 80000, "description": "An'anaviy yapon rameni", "prep_time": "20 daqiqa", "image_url": "https://ibb.co/p6SdB15J", "composition": ["Лапша", "Бульон", "Яйцо", "Свинина"]},
-            {"id": 42, "name": "Рамэн Токио", "price": 66000, "description": "Maxsus ramen", "prep_time": "25 daqiqa", "image_url": "https://ibb.co/Q3dFbp3X", "composition": ["Лапша", "Бульон", "Яйцо", "Свинина", "Овощи"]},
+            {"id": 41, "name": "Рамэн Классик", "price": 80000, "description": "An'anaviy yapon rameni", "prep_time": "20 daqiqa", "image_url": "https://ibb.co/57sXdTZ", "composition": ["Лапша", "Бульон", "Яйцо", "Свинина"]},
+            {"id": 42, "name": "Рамэн Токио", "price": 66000, "description": "Maxsus ramen", "prep_time": "25 daqiqa", "image_url": "https://ibb.co/k20FYLZs", "composition": ["Лапша", "Бульон", "Яйцо", "Свинина", "Овощи"]},
             {"id": 43, "name": "Вок с говядиной", "price": 65000, "description": "Mol go'shti bilan vok", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/4nrmxLW2", "composition": ["Говядина", "Овощи", "Соус"]},
-            {"id": 44, "name": "Том Ям Токио", "price": 95000, "description": "Taylandcha Tom Yam", "prep_time": "30 daqiqa", "image_url": "https://ibb.co/5xYJbRfc", "composition": ["Креветки", "Грибы", "Кокосовое молоко", "Пряности"]},
-            {"id": 45, "name": "Куриные крылышки", "price": 35000, "description": "Qovurilgan tovuq qanotchalar", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/k20FYLZs", "composition": ["Куриные крылышки", "Соус"]},
-            {"id": 46, "name": "Кукси", "price": 40000, "description": "Koreyscha kuksi", "prep_time": "10 daqiqa", "image_url": "https://ibb.co/57sXdTZ", "composition": ["Лапша", "Овощи", "Яйцо"]},
-            {"id": 47, "name": "Вок с курицей", "price": 55000, "description": "Tovuqli vok", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/VZCZTrp", "composition": ["Курица", "Овощи", "Соус"]},
-            {"id": 48, "name": "Том Ям Классик", "price": 70000, "description": "Oddiy Tom Yam", "prep_time": "25 daqiqa", "image_url": "https://ibb.co/tP8T9WVg", "composition": ["Креветки", "Грибы", "Лемонграсс"]},
-            {"id": 49, "name": "Хрустящие баклажаны", "price": 45000, "description": "Qarsildoq baqlajonlar", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/b5jt6yRR", "composition": ["Баклажаны", "Соус"]},
-            {"id": 50, "name": "Цезарь с курицей", "price": 45000, "description": "Sezar salati", "prep_time": "10 daqiqa", "image_url": "https://ibb.co/Nd38hmJQ", "composition": ["Курица", "Салат", "Соус Цезарь"]},
-            {"id": 51, "name": "Греческий салат", "price": 50000, "description": "Rukola bilan salat", "prep_time": "8 daqiqa", "image_url": "https://ibb.co/B5NY9D39", "composition": ["Овощи", "Сыр Фета", "Оливки"]},
-            {"id": 52, "name": "Салат Руккола", "price": 40000, "description": "Rukola salati", "prep_time": "8 daqiqa", "image_url": "https://ibb.co/5xsnpW3c", "composition": ["Руккола", "Помидоры", "Сыр"]},
-            {"id": 53, "name": "Мужской Каприз", "price": 40000, "description": "Kapriz salati", "prep_time": "8 daqiqa", "image_url": "https://ibb.co/HDC28VSN", "composition": ["Овощи", "Мясо", "Соус"]},
-            {"id": 54, "name": "Чука Салат", "price": 35000, "description": "Fuka salati", "prep_time": "8 daqiqa", "image_url": "https://ibb.co/TDh7Bz76", "composition": ["Водоросли Чука", "Кунжут"]},
-            {"id": 55, "name": "Тар-Тар", "price": 15000, "description": "Tar-Tar sousi bilan", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/zTJMDKQH", "composition": ["Соус Тар-Тар"]},
-            {"id": 56, "name": "Рамэн", "price": 45000, "description": "Oddiy ramen", "prep_time": "18 daqiqa", "image_url": "https://ibb.co/QFZZTtp2", "composition": ["Лапша", "Бульон", "Овощи"]}
+            {"id": 44, "name": "Том Ям Токио", "price": 95000, "description": "Taylandcha Tom Yam", "prep_time": "30 daqiqa", "image_url": "https://ibb.co/Xx1ghHBw", "composition": ["Креветки", "Грибы", "Кокосовое молоко", "Пряности"]},
+            {"id": 47, "name": "Вок с курицей", "price": 55000, "description": "Tovuqli vok", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/p6SdB15J", "composition": ["Курица", "Овощи", "Соус"]},
+            {"id": 48, "name": "Том Ям Классик", "price": 70000, "description": "Oddiy Tom Yam", "prep_time": "25 daqiqa", "image_url": "https://ibb.co/rfbG3L2h", "composition": ["Креветки", "Грибы", "Лемонграсс"]},
+            {"id": 49, "name": "Хрустящие баклажаны", "price": 45000, "description": "Qarsildoq baqlajonlar", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/VZCZTrp", "composition": ["Баклажаны", "Соус"]},
+            {"id": 50, "name": "Цезарь с курицей", "price": 45000, "description": "Sezar salati", "prep_time": "10 daqiqa", "image_url": "https://ibb.co/tP8T9WVg", "composition": ["Курица", "Салат", "Соус Цезарь"]},
+            {"id": 51, "name": "Греческий салат", "price": 50000, "description": "Rukola bilan salat", "prep_time": "8 daqiqa", "image_url": "https://ibb.co/Nd38hmJQ", "composition": ["Овощи", "Сыр Фета", "Оливки"]},
+            {"id": 52, "name": "Салат Руккола", "price": 40000, "description": "Rukola salati", "prep_time": "8 daqiqa", "image_url": "https://ibb.co/B5NY9D39", "composition": ["Руккола", "Помидоры", "Сыр"]},
+            {"id": 53, "name": "Мужской Каприз", "price": 40000, "description": "Kapriz salati", "prep_time": "8 daqiqa", "image_url": "https://ibb.co/b5jt6yRR", "composition": ["Овощи", "Мясо", "Соус"]},
+            {"id": 54, "name": "Чука Салат", "price": 35000, "description": "Fuka salati", "prep_time": "8 daqiqa", "image_url": "https://ibb.co/5xsnpW3c", "composition": ["Водоросли Чука", "Кунжут"]},
+            {"id": 55, "name": "Тар-Тар", "price": 15000, "description": "Tar-Tar sousi bilan", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/Q3dFbp3X", "composition": ["Соус Тар-Тар"]},
+            {"id": 56, "name": "Куринние Рамэн", "price": 45000, "description": "Oddiy ramen", "prep_time": "18 daqiqa", "image_url": "https://ibb.co/5xYJbRfc", "composition": ["Лапша", "Бульон", "Овощи"]}
         ]
     },
     "pizza_burger": {
         "name": "🍕 ПИЦЦЕЙ С БУРГЕР",
         "emoji": "🍕",
         "products": [
-            {"id": 57, "name": "Токио Микс 35см", "price": 90000, "description": "Tokio miks pizza 35sm", "prep_time": "25 daqiqa", "image_url": "https://ibb.co/7th0vwxT", "composition": ["Пепперони", "Ветчина", "Грибы", "Оливки"]},
-            {"id": 58, "name": "Кази 35см", "price": 90000, "description": "Bazi pizza 35sm", "prep_time": "25 daqiqa", "image_url": "https://ibb.co/bMYmp7Kq", "composition": ["Колбаски", "Овощи", "Сыр"]},
-            {"id": 59, "name": "Микс 35см", "price": 85000, "description": "Aralash pizza 35sm", "prep_time": "22 daqiqa", "image_url": "https://ibb.co/jksjJ4Jt", "composition": ["Ассорти мяса", "Овощи", "Сыр"]},
-            {"id": 60, "name": "Пепперони 35см", "price": 80000, "description": "Pishloqli pizza 35sm", "prep_time": "20 daqiqa", "image_url": "https://ibb.co/VWx6vgQK", "composition": ["Пепперони", "Сыр"]},
-            {"id": 61, "name": "Кузикорин 35см", "price": 80000, "description": "Kuzidirini pizza 35sm", "prep_time": "20 daqiqa", "image_url": "https://ibb.co/LhnynQdb", "composition": ["Курица", "Овощи", "Сыр"]},
-            {"id": 62, "name": "Маргарита 35см", "price": 75000, "description": "Margarita pizza 35sm", "prep_time": "18 daqiqa", "image_url": "https://ibb.co/gMXHywj0", "composition": ["Помидоры", "Сыр", "Базилик"]},
-            {"id": 63, "name": "Гамбургер", "price": 28000, "description": "Gamburger", "prep_time": "10 daqiqa", "image_url": "https://ibb.co/hJWnm5ct", "composition": ["Говяжья котлета", "Овощи", "Соус"]},
-            {"id": 64, "name": "Чизбургер", "price": 33000, "description": "Chizburger", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/NBChXQN", "composition": ["Говяжья котлета", "Сыр", "Овощи"]},
-            {"id": 65, "name": "Токио Бургер", "price": 37000, "description": "Tokio maxsus burger", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/4Z8SY79y", "composition": ["Говяжья котлета", "Сыр", "Овощи", "Специальный соус"]},
+            {"id": 57, "name": "Токио Микс 35см", "price": 90000, "description": "Tokio miks pizza 35sm", "prep_time": "25 daqiqa", "image_url": "https://ibb.co/zTJMDKQH", "composition": ["Пепперони", "Ветчина", "Грибы", "Оливки"]},
+            {"id": 58, "name": "Кази 35см", "price": 90000, "description": "Bazi pizza 35sm", "prep_time": "25 daqiqa", "image_url": "https://ibb.co/HDC28VSN", "composition": ["Колбаски", "Овощи", "Сыр"]},
+            {"id": 59, "name": "Микс 35см", "price": 85000, "description": "Aralash pizza 35sm", "prep_time": "22 daqiqa", "image_url": "https://ibb.co/QFZZTtp2", "composition": ["Ассорти мяса", "Овощи", "Сыр"]},
+            {"id": 60, "name": "Пепперони 35см", "price": 80000, "description": "Pishloqli pizza 35sm", "prep_time": "20 daqiqa", "image_url": "https://ibb.co/TDh7Bz76", "composition": ["Пепперони", "Сыр"]},
+            {"id": 61, "name": "Кузикорин 35см", "price": 80000, "description": "Kuzidirini pizza 35sm", "prep_time": "20 daqiqa", "image_url": "https://ibb.co/7th0vwxT", "composition": ["Курица", "Овощи", "Сыр"]},
+            {"id": 62, "name": "Маргарита 35см", "price": 75000, "description": "Margarita pizza 35sm", "prep_time": "18 daqiqa", "image_url": "https://ibb.co/bMYmp7Kq", "composition": ["Помидоры", "Сыр", "Базилик"]},
+            {"id": 63, "name": "Гамбургер", "price": 28000, "description": "Gamburger", "prep_time": "10 daqiqa", "image_url": "https://ibb.co/jksjJ4Jt", "composition": ["Говяжья котлета", "Овощи", "Соус"]},
+            {"id": 64, "name": "Чизбургер", "price": 33000, "description": "Chizburger", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/VWx6vgQK", "composition": ["Говяжья котлета", "Сыр", "Овощи"]},
+            {"id": 65, "name": "Токио Бургер", "price": 37000, "description": "Tokio maxsus burger", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/LhnynQdb", "composition": ["Говяжья котлета", "Сыр", "Овощи", "Специальный соус"]},
             {"id": 66, "name": "Куриные крылышки", "price": 35000, "description": "Qovurilgan tovuq qanotchalar", "prep_time": "15 daqiqa", "image_url": None, "composition": ["Куриные крылышки", "Соус"]},
             {"id": 67, "name": "Сырные шарики", "price": 22000, "description": "Pishloq shariklari", "prep_time": "8 daqiqa", "image_url": None, "composition": ["Сыр", "Панировка"]},
             {"id": 68, "name": "Картофель Фри", "price": 22000, "description": "Qovurilgan kartoshka", "prep_time": "7 daqiqa", "image_url": None, "composition": ["Картофель", "Соль"]},
@@ -1114,11 +1111,11 @@ Agar xizmatlarimizni baholab, bizga yordam bersangiz, sizga minnatdor bo'lamiz!
     
     keyboard = {
         "inline_keyboard": [
-            [{"text": "⭐️⭐️⭐️⭐️⭐️", "callback_data": "rate_5"}],
-            [{"text": "⭐️⭐️⭐️⭐️", "callback_data": "rate_4"}],
-            [{"text": "⭐️⭐️⭐️", "callback_data": "rate_3"}],
-            [{"text": "⭐️⭐️", "callback_data": "rate_2"}],
-            [{"text": "⭐️", "callback_data": "rate_1"}],
+            [{"text": "⭐️⭐️⭐️⭐️⭐️ajoyib", "callback_data": "rate_5"}],
+            [{"text": "⭐️⭐️⭐️⭐️yaxshi", "callback_data": "rate_4"}],
+            [{"text": "⭐️⭐️⭐️qoniqarli", "callback_data": "rate_3"}],
+            [{"text": "⭐️⭐️unchamas", "callback_data": "rate_2"}],
+            [{"text": "⭐️juda yomon", "callback_data": "rate_1"}],
             [{"text": "🏠 Menu", "callback_data": "main_menu"}]
         ]
     }
@@ -1217,18 +1214,17 @@ Tokio Sushi - bu an'anaviy yapon oshxonasining eng yaxshi an'analarini zamonaviy
 
 📞 <b>Aloqa:</b>
 +998 91 211 12 15
-@tokiosushi_karshi
 
 📍 <b>Lokatsiya:</b>
-https://maps.google.com/?q=Karshi+Amir+Temur+45
+https://maps.app.goo.gl/KmfJA59T36FgRzWZ6
 """
     else:
         text = """
 🏮 <b>ИНФОРМАЦИЯ О TOKIO SUSHI</b>
 
 📍 <b>Адрес:</b>
-г. Карши, ул. Амира Темура, 45
-(Рядом с главным базаром)
+г. Карши, ул. ул.Узбекитан 45
+(Рядом с урин бобо чайхана)
 
 🕒 <b>Время работы:</b>
 Понедельник-Воскресенье: 11:00 - 02:00
@@ -1249,10 +1245,10 @@ Tokio Sushi - это премиальный ресторан, который п�
 
 📞 <b>Контакты:</b>
 +998 91 211 12 15
-@tokiosushi_karshi
+
 
 📍 <b>Локация:</b>
-https://maps.google.com/?q=Karshi+Amir+Temur+45
+https://maps.app.goo.gl/KmfJA59T36FgRzWZ6
 """
     
     keyboard = {
