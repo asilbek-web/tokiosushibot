@@ -1094,7 +1094,7 @@ def start_feedback(chat_id):
     
     if lang == "uz":
         text = """
-Sushi Yummyni tanlaganingiz uchun rahmat!
+Tokio sushini tanlaganingiz uchun rahmat!
 
 Agar xizmatlarimizni baholab, bizga yordam bersangiz, sizga minnatdor bo'lamiz!
 
@@ -1192,8 +1192,8 @@ def show_info(chat_id):
 🏮 <b>TOKIO SUSHI HAQIDA MA'LUMOT</b>
 
 📍 <b>Manzil:</b> 
-g. Karshi, Amir Temur ko'chasi, 45
-(Asosiy bozor yonida)
+qarshi shahar paxtzor mfy
+(urin bobo choyxonasi ruparasi)
 
 🕒 <b>Ish vaqti:</b>
 Dushanba-Yakshanba: 11:00 - 02:00
@@ -1253,7 +1253,7 @@ https://maps.app.goo.gl/KmfJA59T36FgRzWZ6
     
     keyboard = {
         "inline_keyboard": [
-            [{"text": "📍 Lokatsiya", "url": "https://maps.google.com/?q=Karshi+Amir+Temur+45"}],
+            [{"text": "📍 Lokatsiya", "url": "https://maps.app.goo.gl/KmfJA59T36FgRzWZ6"}],
             [{"text": "📞 Qo'ng'iroq qilish", "callback_data": "call_restaurant"}],
             [{"text": "🏠 Asosiy menyu", "callback_data": "main_menu"}]
         ]
@@ -1273,7 +1273,7 @@ def show_contacts(chat_id):
     keyboard = {
         "inline_keyboard": [
             [{"text": "📞 Qo'ng'iroq qilish", "callback_data": "call_restaurant"}],
-            [{"text": "📍 Lokatsiya", "url": "https://maps.google.com/?q=Karshi+Amir+Temur+45"}],
+            [{"text": "📍 Lokatsiya", "url": "https://maps.app.goo.gl/KmfJA59T36FgRzWZ6"}],
             [{"text": "🏠 Asosiy menyu", "callback_data": "main_menu"}]
         ]
     }
