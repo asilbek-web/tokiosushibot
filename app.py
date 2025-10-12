@@ -7,6 +7,11 @@ from datetime import datetime, timedelta
 from flask import Flask
 from threading import Thread
 import schedule
+import logging
+
+# Logging sozlamalari
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -31,6 +36,7 @@ LANGUAGES = {
     "ru": "Русский"
 }
 
+# Global variables
 user_language = {}
 user_data = {}
 orders_data = {}
@@ -47,7 +53,7 @@ menu_data = {
             {"id": 2, "name": "Филадельфия (Тунец)", "price": 90000, "description": "Сыр.Тунец", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/ymzTLB2d", "composition": ["Гурч", "Тунец", "Моццарелла сыр"]},
             {"id": 3, "name": "Филадельфия Классик", "price": 80000, "description": "Сыр.Огурецы.Лосось", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/gLGNmQNL", "composition": ["Гурч", "Лосось", "Огурец", "Моццарелла сыр"]},
             {"id": 4, "name": "Эби Голд", "price": 110000, "description": "Сыр.Лосось.Креветки в кляре.Огурец.Лук", "prep_time": "18 daqiqa", "image_url": "https://ibb.co/TBMTxXkK", "composition": ["Гурч", "Лосось", "Креветки", "Огурец", "Лук"]},
-            {"id": 5, "name": "Лосось (гриль)", "price": 93000, "description": "Сыр.Унаги соус.Лосось.Массаго", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/Q7tpSZRW", "composition": ["Гурч", "Лосось гриль", "Унаги соус", "Массаго"]},
+            {"id": 5, "name": "Лосось (гриль)", "price": 93000, "description": "Сыр.Унаги соус.Лосось.Массаго", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/Q7tpSZRW", "composition": ["Гурч", "Лосось гриль", "Унаги соус", "Массаago"]},
             {"id": 6, "name": "Калифорния с креветками", "price": 80000, "description": "Сыр.Огурец.Креветки тигровые.Массаго красс", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/LzWDsSLL", "composition": ["Гурч", "Креветки", "Огурец", "Массаго"]},
             {"id": 7, "name": "Калифорния с лососем", "price": 76000, "description": "Сыр.Огурец.Лосось.Массаго красс", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/x8mtrwnr", "composition": ["Гурч", "Лосось", "Огурец", "Массаго"]},
             {"id": 8, "name": "Калифорния с крабом", "price": 70000, "description": "Сыр.Огурец.Снежный краб.Массаго красный", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/GQC6b0Jx", "composition": ["Гурч", "Краб", "Огурец", "Массаго"]},
@@ -80,7 +86,7 @@ menu_data = {
         "products": [
             {"id": 17, "name": "Темпура (Тунец)", "price": 75000, "description": "Огурец.Сыр.Тунец", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/QFjbcnG9", "composition": ["Гурч", "Тунец", "Огурец"]},
             {"id": 18, "name": "Темпура Угорь", "price": 71000, "description": "Сыр.Огурец.Угорь.Массаго красс.Унаги соус", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/d4QM7zfJ", "composition": ["Гурч", "Угорь", "Огурец", "Унаги соус"]},
-            {"id": 19, "name": "Темпура с креветками", "price": 70000, "description": "Сыр.Огурец.Креветки тигровые.Массаго красс.Унаги соус", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/1JRBHPQj", "composition": ["Гурч", "Креветки", "Огурец", "Унаги соус"]},
+            {"id": 19, "name": "Темпура с креветками", "price": 70000, "description": "Сыр.Огурец.Креветки тигровые.Массаago красс.Унаги соус", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/1JRBHPQj", "composition": ["Гурч", "Креветки", "Огурец", "Унаги соус"]},
             {"id": 20, "name": "Темпура с лососем", "price": 66000, "description": "Сыр.Огурец.Лосось.Унаги соус.Кунжут", "prep_time": "14 daqiqa", "image_url": "https://ibb.co/MxzTgnLD", "composition": ["Гурч", "Лосось", "Огурец", "Унаги соус"]},
             {"id": 21, "name": "Темпура Курица", "price": 48000, "description": "Айсберг.Майонез.Курица.Унаги соус", "prep_time": "12 daqiqa", "image_url": "https://ibb.co/qQJVGwz", "composition": ["Гурч", "Курица", "Салат Айсберг", "Унаги соус"]},
         ]
@@ -184,6 +190,38 @@ menu_data = {
     }
 }
 
+# ==================== UPTIME OPTIMIZATION ====================
+
+class UptimeMonitor:
+    def __init__(self):
+        self.last_ping_time = datetime.utcnow()
+        self.ping_count = 0
+        self.start_time = datetime.utcnow()
+        
+    def record_ping(self):
+        self.last_ping_time = datetime.utcnow()
+        self.ping_count += 1
+        logger.info(f"Uptime ping qabul qilindi - Umumiy: {self.ping_count}")
+        
+    def get_status(self):
+        uptime = datetime.utcnow() - self.start_time
+        hours, remainder = divmod(int(uptime.total_seconds()), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        
+        return {
+            "status": "healthy",
+            "service": "Tokio Sushi Premium Bot",
+            "uptime": f"{hours}h {minutes}m {seconds}s",
+            "uptime_pings": self.ping_count,
+            "last_ping": self.last_ping_time.isoformat(),
+            "current_time": get_uzbekistan_time().isoformat(),
+            "active_users": len(user_data),
+            "active_orders": len(orders_data),
+            "server_time": datetime.utcnow().isoformat()
+        }
+
+uptime_monitor = UptimeMonitor()
+
 # ==================== YANGI FUNKSIYALAR ====================
 
 def get_uzbekistan_time():
@@ -205,7 +243,7 @@ def send_message(chat_id, text, keyboard=None):
         response = requests.post(url, json=data, timeout=10)
         return response.status_code == 200
     except Exception as e:
-        print(f"Xabar yuborishda xato: {e}")
+        logger.error(f"Xabar yuborishda xato: {e}")
         return False
 
 def send_photo(chat_id, photo_url, caption=None, keyboard=None):
@@ -224,7 +262,7 @@ def send_photo(chat_id, photo_url, caption=None, keyboard=None):
         response = requests.post(url, json=data, timeout=10)
         return response.status_code == 200
     except Exception as e:
-        print(f"Rasm yuborishda xato: {e}")
+        logger.error(f"Rasm yuborishda xato: {e}")
         return False
 
 def language_selection(chat_id):
@@ -830,7 +868,7 @@ def handle_callback(chat_id, callback_data):
                 send_message(chat_id, "📞 Для звонка: +998 91 211 12 15")
                     
     except Exception as e:
-        print(f"Callback xatosi: {e}")
+        logger.error(f"Callback xatosi: {e}")
         lang = user_language.get(chat_id, "uz")
         if lang == "uz":
             send_message(chat_id, "❌ Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.")
@@ -910,11 +948,10 @@ def request_location(chat_id):
         text = """
 📍 <b>MANZILINGIZNI YUBORING</b>
 
-Yetkazib berish uchun manzilingizni yuboring.
+Yetkazib berish uchun manzilingizni yuboring (yuborish paytida GPS yoqing).
 
 <b>Variantlar:</b>
 • "📍 Google Maps orqali" - joylashuvingizni yuboring
-• "🌐 Yandex Maps havolasini yuborish" - Yandex Maps havolasini yuboring
 • Yoki aniq manzilni matn shaklida yozing
 
 📝 <i>Masalan: Karshi shahar, Amir Temur ko'chasi, 45-uy</i>
@@ -938,11 +975,10 @@ Yetkazib berish uchun manzilingizni yuboring.
         text = """
 📍 <b>ОТПРАВЬТЕ ВАШ АДРЕС</b>
 
-Для доставки отправьте ваш адрес.
+Для доставки отправьте ваш адрес (Включите GPS при определении местоположения)..
 
 <b>Варианты:</b>
 • "📍 Через Google Maps" - отправьте вашу геолокацию
-• "🌐 Отправить Yandex Maps ссылку" - отправьте ссылку Yandex Maps
 • Или напишите точный адрес текстом
 
 📝 <i>Пример: г. Карши, ул. Амира Темура, дом 45</i>
@@ -1488,47 +1524,118 @@ def keep_alive():
     """UptimeRobot uchun keep-alive"""
     try:
         requests.get("https://tokiosushibot.onrender.com/health", timeout=5)
-        print("🔄 Keep-alive signal sent")
-    except:
-        print("⚠️ Keep-alive failed")
+        logger.info("🔄 Keep-alive signal sent")
+    except Exception as e:
+        logger.warning(f"⚠️ Keep-alive failed: {e}")
 
 def start_keep_alive():
     """Keep-alive ni ishga tushirish"""
-    schedule.every(10).minutes.do(keep_alive)
+    logger.info("🔄 Keep-alive system started")
+    
+    # Har 8 daqiqada ichki ping
+    schedule.every(8).minutes.do(keep_alive)
+    
+    # Har 5 daqiqada status log
+    schedule.every(5).minutes.do(lambda: logger.info(
+        f"📊 Status: Pings={uptime_monitor.ping_count}, Users={len(user_data)}, Orders={len(orders_data)}"
+    ))
+    
     while True:
-        schedule.run_pending()
-        time.sleep(1)
+        try:
+            schedule.run_pending()
+            time.sleep(1)
+        except Exception as e:
+            logger.error(f"Schedule error: {e}")
+            time.sleep(60)
+
+# ==================== FLASK ENDPOINTS ====================
 
 @app.route('/')
 def home():
-    return "🎌 TOKIO SUSHI PREMIUM BOT - 24/7 Faol"
+    uptime_monitor.record_ping()
+    status = uptime_monitor.get_status()
+    return f"""
+🎌 <b>TOKIO SUSHI PREMIUM BOT - 24/7 Faol</b>
+
+✅ <b>Server Status:</b> ONLINE
+🕒 <b>Uptime:</b> {status['uptime']}
+👥 <b>Active Users:</b> {status['active_users']}
+📊 <b>Total Pings:</b> {status['uptime_pings']}
+
+🔗 <b>Health Check:</b> /health
+📡 <b>Ping Test:</b> /ping
+🔄 <b>Status:</b> /status
+"""
 
 @app.route('/health')
 def health_check():
-    return {"status": "healthy", "service": "Tokio Sushi Premium Bot", "timestamp": get_uzbekistan_time().isoformat()}
+    uptime_monitor.record_ping()
+    status = uptime_monitor.get_status()
+    return json.dumps(status, indent=2, ensure_ascii=False)
 
 @app.route('/ping')
 def ping():
-    return "pong"
+    uptime_monitor.record_ping()
+    return "🏓 PONG - Tokio Sushi Bot Faol - {}".format(
+        get_uzbekistan_time().strftime('%Y-%m-%d %H:%M:%S')
+    )
+
+@app.route('/status')
+def status():
+    uptime_monitor.record_ping()
+    status = uptime_monitor.get_status()
+    return json.dumps(status, indent=2, ensure_ascii=False)
+
+@app.route('/metrics')
+def metrics():
+    """Prometheus style metrics for UptimeRobot"""
+    uptime_monitor.record_ping()
+    
+    metrics_text = f"""
+# HELP bot_uptime_pings Total uptime ping requests
+# TYPE bot_uptime_pings counter
+bot_uptime_pings {uptime_monitor.ping_count}
+
+# HELP bot_active_users Current active users
+# TYPE bot_active_users gauge
+bot_active_users {len(user_data)}
+
+# HELP bot_active_orders Current active orders
+# TYPE bot_active_orders gauge
+bot_active_orders {len(orders_data)}
+
+# HELP bot_health_status Health status (1=healthy, 0=unhealthy)
+# TYPE bot_health_status gauge
+bot_health_status 1
+
+# HELP bot_last_ping_seconds Seconds since last ping
+# TYPE bot_last_ping_seconds gauge
+bot_last_ping_seconds {(datetime.utcnow() - uptime_monitor.last_ping_time).total_seconds()}
+"""
+    return metrics_text
 
 # ==================== ASOSIY BOT LOGIKASI ====================
 
 def run_bot():
-    print("🚀 Tokio Sushi Premium Bot ishga tushdi!")
+    logger.info("🚀 Tokio Sushi Premium Bot ishga tushdi!")
     
     last_update_id = None
+    error_count = 0
+    max_errors = 5
+    
     while True:
         try:
             response = requests.get(BASE_URL + "getUpdates", {
                 "offset": last_update_id,
                 "timeout": 30
-            }, timeout=10)
+            }, timeout=15)
             
             if response.status_code == 200:
                 data = response.json()
                 if data.get("ok") and data.get("result"):
                     for update in data["result"]:
                         last_update_id = update["update_id"] + 1
+                        error_count = 0  # Reset error count on success
                         
                         if "message" in update:
                             chat_id = update["message"]["chat"]["id"]
@@ -1631,7 +1738,7 @@ def run_bot():
                                     else:
                                         send_message(chat_id, "❌ Активный заказ не найден")
                             
-                            # YANGI: Kategoriyalarni qayta ishlash
+                            # Kategoriyalarni qayta ishlash
                             elif text in ["🍣 ХОЛОДНЫЕ РОЛЛЫ", "🔥 ЗАПЕЧЕННЫЕ ФИРМЕННЫЕ РОЛЛЫ ОТ:", "⚡ ЖАРЕНЫЕ РОЛЛЫ", 
                                         "🎎 СЕТЛАР", "🍱 СУШИ ВА ГУНКАН", "🍜 ГОРЯЧАЯ ЕДА", 
                                         "🍕 ПИЦЦЕЙ С БУРГЕР", "🥤 ИЧИМЛИКЛАР"]:
@@ -1649,7 +1756,7 @@ def run_bot():
                                 if category_key:
                                     show_category(chat_id, category_key)
                             
-                            # YANGI: Mahsulotlarni qayta ishlash
+                            # Mahsulotlarni qayta ishlash
                             elif any(text == product['name'] for category in menu_data.values() for product in category['products']):
                                 for category in menu_data.values():
                                     for product in category['products']:
@@ -1749,18 +1856,32 @@ def run_bot():
                             
                             handle_callback(chat_id, callback_data)
             
-            time.sleep(1)
+            time.sleep(0.5)
             
         except Exception as e:
-            print(f"Xato: {e}")
+            error_count += 1
+            logger.error(f"Bot xatosi #{error_count}: {e}")
+            
+            if error_count >= max_errors:
+                logger.error("❌ Ko'p xatolar, qayta urinish...")
+                time.sleep(10)
+                error_count = 0
+            
             time.sleep(3)
 
+# ==================== SERVER ISHGA TUSHIRISH ====================
+
 if __name__ == "__main__":
+    # Keep-alive ni ishga tushirish
     keep_alive_thread = Thread(target=start_keep_alive, daemon=True)
     keep_alive_thread.start()
     
+    # Botni ishga tushirish
     bot_thread = Thread(target=run_bot, daemon=True)
     bot_thread.start()
     
+    # Flask server ni ishga tushirish
     port = int(os.environ.get("PORT", 10000))
+    logger.info(f"📍 Server {port}-portda ishga tushdi")
+    
     app.run(host='0.0.0.0', port=port, debug=False)
