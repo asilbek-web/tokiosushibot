@@ -54,7 +54,7 @@ menu_data = {
             {"id": 9, "name": "Ролл Огурец", "price": 65000, "description": "Сыр.Стружка тунца.Огурец", "prep_time": "10 daqiqa", "image_url": "https://ibb.co/qMwVCNkJ", "composition": ["Гурч", "Огурец", "Стружка тунца"]},
             {"id": 91, "name": "Ролл в Кунжуте", "price": 50000, "description": "Сыр.Кунжут.Краб", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/npfwvNQ", "composition": ["Гурч", "Кунжут", "Краб"]},
             {"id": 92, "name": "Дракон", "price": 75000, "description": "Сыр.Угорь.Огурец", "prep_time": "15 daqiqa", "image_url": "https://ibb.co/cXNm1Lws", "composition": ["Гурч", "Угорь", "Огурец"]},
-            {"id": 93, "name": "Канада GOLD", "price": 85000, "description": "Сыр.Лосось.Огурец.Угорь.Унаги соус.Кунжут", "prep_time": "20 daqiqa", "image_url": "https://ibb.co/ZRX11xwV", "composition": ["Гурч", "Лосось", "Огурец", "Угорь", "Унаги соус"]}
+            {"id": 93, "name": "Канада gold", "price": 85000, "description": "Сыр.Лосось.Огурец.Угорь.Унаги соус.Кунжут", "prep_time": "20 daqiqa", "image_url": "https://ibb.co/ZRX11xwV", "composition": ["Гурч", "Лосось", "Огурец", "Угорь", "Унаги соус"]}
         ]
     },
     "zapechennye": {
