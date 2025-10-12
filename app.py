@@ -91,7 +91,7 @@ menu_data = {
         "products": [
             {"id": 22, "name": "Сет Токио 48шт", "price": 390000, "description": "Дракон ролл 8шт + Филадельфия классик 8шт + Темпура Лосось 8шт + Краб Запеченый 16шт + Калифорния Лосось 8шт", "prep_time": "40 daqiqa", "image_url": "https://ibb.co/3ycXwTn3", "composition": ["Дракон ролл", "Филадельфия классик", "Темпура Лосось", "Краб Запеченый", "Калифорния Лосось"]},
             {"id": 23, "name": "Сет Ямамото 32шт", "price": 290000, "description": "Филадельфия классик 8шт + Калифорния классик 8шт + Ролл с креветками 8шт + Ролл Чука 8шт", "prep_time": "35 daqiqa", "image_url": "https://ibb.co/DHsDJyTf", "composition": ["Филадельфия классик", "Калифорния классик", "Ролл с креветками", "Ролл Чука"]},
-            {"id": 24, "name": "Сет Идеал 32шт", "price": 260000, "description": "Филадельфия классик 8шт + Калифорния Кунсут 8шт + Калифорния Черный 8шт + Дракон ролл 8шт", "prep_time": "32 daqiqa", "image_url": "https://ibb.co/bMnZDM8v", "composition": ["Филадельфия классик", "Калифорния Кунсут", "Калифорния Черный", "Дракон ролл"]},
+            {"id": 24, "name": "Сet Идеал 32шт", "price": 260000, "description": "Филадельфия классик 8шт + Калифорния Кунсут 8шт + Калифорния Черный 8шт + Дракон ролл 8шт", "prep_time": "32 daqiqa", "image_url": "https://ibb.co/bMnZDM8v", "composition": ["Филадельфия классик", "Калифорния Кунсут", "Калифорния Черный", "Дракон ролл"]},
             {"id": 25, "name": "Сет Окей 24шт", "price": 200000, "description": "Филадельфия классик 8шт + Запеченый лосось 8шт + Темпура лосось 8шт", "prep_time": "30 daqiqa", "image_url": "https://ibb.co/YFfW3pFJ", "composition": ["Филадельфия классик", "Запеченый лосось", "Темпура лосось"]},
             {"id": 26, "name": "Сет Сакура 24шт", "price": 180000, "description": "Филадельфия классик 4шт + Канада Голд 4шт + Мини ролл лосось 8шт + Темпура лосось 8шт", "prep_time": "28 daqiqa", "image_url": "https://ibb.co/FLrCy969", "composition": ["Филадельфия классик", "Канада Голд", "Мини ролл лосось", "Темпура лосось"]},
             {"id": 27, "name": "Сет Классический 32шт", "price": 150000, "description": "Мини ролл лосось 8шт + Мини ролл огурец 8шт + Мини ролл тунец 8шт + Мини ролл краб 8шт", "prep_time": "25 daqiqa", "image_url": "https://ibb.co/Q3B6yMxV", "composition": ["Мини ролл лосось", "Мини ролл огурец", "Мини ролл тунец", "Мини ролл краб"]}
@@ -330,7 +330,7 @@ def send_welcome_message(chat_id):
     send_message(chat_id, text, main_menu_with_language(chat_id))
 
 def show_full_menu(chat_id):
-    """YANGI: To'liq menyuni INLINE tugmalar bilan ko'rsatish"""
+    """YANGI: To'liq menyuni PASTKI QATORDAGI TUGMALAR bilan ko'rsatish"""
     lang = user_language.get(chat_id, "uz")
     
     if lang == "uz":
@@ -354,25 +354,22 @@ Ovqatga buyurtma berish uchun biror kategoriya tanlang:
 Выберите категорию для заказа еды:
 """
     
+    # YANGI: Kategoriyalarni PASTKI QATORGA joylash
     keyboard = {
-        "inline_keyboard": [
-            [{"text": "🍣 ХОЛОДНЫЕ РОЛЛЫ", "callback_data": "category_holodnye_rolly"}],
-            [{"text": "🔥 ЗАПЕЧЕННЫЕ ФИРМЕННЫЕ РОЛЛЫ ОТ:", "callback_data": "category_zapechennye"}],
-            [{"text": "⚡ ЖАРЕНЫЕ РОЛЛЫ", "callback_data": "category_jarennye_rolly"}],
-            [{"text": "🎎 СЕТЛАР", "callback_data": "category_sety"}],
-            [{"text": "🍱 СУШИ ВА ГУНКАН", "callback_data": "category_sushi_gunkan"}],
-            [{"text": "🍜 ГОРЯЧАЯ ЕДА", "callback_data": "category_goryachaya_eda"}],
-            [{"text": "🍕 ПИЦЦЕЙ С БУРГЕР", "callback_data": "category_pizza_burger"}],
-            [{"text": "🥤 ИЧИМЛИКЛАР", "callback_data": "category_napitki"}],
-            [{"text": "🛒 Savatni ko'rish", "callback_data": "view_cart"}],
-            [{"text": "🏠 Asosiy menyu", "callback_data": "main_menu"}]
-        ]
+        "keyboard": [
+            ["🍣 ХОЛОДНЫЕ РОЛЛЫ", "🔥 ЗАПЕЧЕННЫЕ ФИРМЕННЫЕ РОЛЛЫ ОТ:"],
+            ["⚡ ЖАРЕНЫЕ РОЛЛЫ", "🎎 СЕТЛАР"],
+            ["🍱 СУШИ ВА ГУНКАН", "🍜 ГОРЯЧАЯ ЕДА"],
+            ["🍕 ПИЦЦЕЙ С БУРГЕР", "🥤 ИЧИМЛИКЛАР"],
+            ["🛒 Savatni ko'rish", "🏠 Asosiy menyu"]
+        ],
+        "resize_keyboard": True
     }
     
     send_message(chat_id, text, keyboard)
 
 def show_category(chat_id, category_key):
-    """Kategoriyani ko'rsatish"""
+    """Kategoriyani ko'rsatish - INLINE tugmalar bilan"""
     category = menu_data[category_key]
     lang = user_language.get(chat_id, "uz")
     
@@ -418,7 +415,7 @@ Ovqatga buyurtma berish uchun biror mahsulot tanlang:
     send_message(chat_id, text, keyboard)
 
 def view_product(chat_id, product_id, quantity=1):
-    """YANGI: Mahsulotni ko'rsatish - yangi miqdor tizimi"""
+    """Mahsulotni ko'rsatish - yangi miqdor tizimi"""
     # Mahsulotni topish
     product = None
     category_key = None
@@ -462,7 +459,7 @@ def view_product(chat_id, product_id, quantity=1):
 📝 <b>Описание:</b> {product['description']}
 """
     
-    # YANGI: Miqdor tanlash keyboard - + va - tugmalari
+    # Miqdor tanlash keyboard - + va - tugmalari
     if lang == "uz":
         keyboard = {
             "inline_keyboard": [
@@ -633,7 +630,7 @@ def show_cart(chat_id):
 # ==================== YANGI CALLBACK HANDLER ====================
 
 def handle_callback(chat_id, callback_data):
-    """YANGI: Callbacklarni qayta ishlash - yangi miqdor tizimi"""
+    """Callbacklarni qayta ishlash - yangi miqdor tizimi"""
     try:
         if callback_data == "ignore":
             return
