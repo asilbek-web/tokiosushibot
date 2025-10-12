@@ -184,7 +184,7 @@ menu_data = {
     }
 }
 
-# ==================== ASOSIY FUNKSIYALAR ====================
+# ==================== YANGI FUNKSIYALAR ====================
 
 def get_uzbekistan_time():
     """O'zbekiston vaqtini olish"""
@@ -330,7 +330,7 @@ def send_welcome_message(chat_id):
     send_message(chat_id, text, main_menu_with_language(chat_id))
 
 def show_full_menu(chat_id):
-    """To'liq menyuni ko'rsatish"""
+    """YANGI: To'liq menyuni INLINE tugmalar bilan ko'rsatish"""
     lang = user_language.get(chat_id, "uz")
     
     if lang == "uz":
@@ -380,10 +380,6 @@ def show_category(chat_id, category_key):
         text = f"""
 🍽 <b>Mazali Menyu</b>
 
-Assalomu alaykum! Menyuga xush kelibsiz.
-
-Nimadan boshlaymiz?
-
 <b>{category['name']}</b>
 
 Ovqatga buyurtma berish uchun biror mahsulot tanlang:
@@ -391,10 +387,6 @@ Ovqatga buyurtma berish uchun biror mahsulot tanlang:
     else:
         text = f"""
 🍽 <b>Вкусное Меню</b>
-
-Ассалому алайкум! Добро пожаловать в меню.
-
-С чего начнем?
 
 <b>{category['name']}</b>
 
@@ -425,8 +417,8 @@ Ovqatga buyurtma berish uchun biror mahsulot tanlang:
     
     send_message(chat_id, text, keyboard)
 
-def view_product(chat_id, product_id):
-    """Mahsulotni ko'rsatish"""
+def view_product(chat_id, product_id, quantity=1):
+    """YANGI: Mahsulotni ko'rsatish - yangi miqdor tizimi"""
     # Mahsulotni topish
     product = None
     category_key = None
@@ -470,30 +462,28 @@ def view_product(chat_id, product_id):
 📝 <b>Описание:</b> {product['description']}
 """
     
-    # Miqdor tanlash keyboard
+    # YANGI: Miqdor tanlash keyboard - + va - tugmalari
     if lang == "uz":
         keyboard = {
             "inline_keyboard": [
-                [{"text": "1", "callback_data": f"add_qty_{product_id}_1"}, 
-                 {"text": "2", "callback_data": f"add_qty_{product_id}_2"},
-                 {"text": "3", "callback_data": f"add_qty_{product_id}_3"}],
-                [{"text": "4", "callback_data": f"add_qty_{product_id}_4"},
-                 {"text": "5", "callback_data": f"add_qty_{product_id}_5"},
-                 {"text": "6", "callback_data": f"add_qty_{product_id}_6"}],
-                [{"text": "➕ Savatga qo'shish", "callback_data": f"add_{product_id}"}],
+                [
+                    {"text": "➖", "callback_data": f"decrease_{product_id}_{quantity}"},
+                    {"text": f"{quantity}", "callback_data": "ignore"},
+                    {"text": "➕", "callback_data": f"increase_{product_id}_{quantity}"}
+                ],
+                [{"text": "🛒 Savatga qo'shish", "callback_data": f"add_{product_id}_{quantity}"}],
                 [{"text": "⬅️ Ortga", "callback_data": f"category_{category_key}"}]
             ]
         }
     else:
         keyboard = {
             "inline_keyboard": [
-                [{"text": "1", "callback_data": f"add_qty_{product_id}_1"}, 
-                 {"text": "2", "callback_data": f"add_qty_{product_id}_2"},
-                 {"text": "3", "callback_data": f"add_qty_{product_id}_3"}],
-                [{"text": "4", "callback_data": f"add_qty_{product_id}_4"},
-                 {"text": "5", "callback_data": f"add_qty_{product_id}_5"},
-                 {"text": "6", "callback_data": f"add_qty_{product_id}_6"}],
-                [{"text": "➕ В корзину", "callback_data": f"add_{product_id}"}],
+                [
+                    {"text": "➖", "callback_data": f"decrease_{product_id}_{quantity}"},
+                    {"text": f"{quantity}", "callback_data": "ignore"},
+                    {"text": "➕", "callback_data": f"increase_{product_id}_{quantity}"}
+                ],
+                [{"text": "🛒 В корзину", "callback_data": f"add_{product_id}_{quantity}"}],
                 [{"text": "⬅️ Назад", "callback_data": f"category_{category_key}"}]
             ]
         }
@@ -640,13 +630,206 @@ def show_cart(chat_id):
     
     send_message(chat_id, text, keyboard)
 
+# ==================== YANGI CALLBACK HANDLER ====================
+
+def handle_callback(chat_id, callback_data):
+    """YANGI: Callbacklarni qayta ishlash - yangi miqdor tizimi"""
+    try:
+        if callback_data == "ignore":
+            return
+            
+        elif callback_data.startswith("increase_"):
+            parts = callback_data.split("_")
+            product_id = int(parts[1])
+            current_quantity = int(parts[2])
+            new_quantity = current_quantity + 1
+            view_product(chat_id, product_id, new_quantity)
+            
+        elif callback_data.startswith("decrease_"):
+            parts = callback_data.split("_")
+            product_id = int(parts[1])
+            current_quantity = int(parts[2])
+            new_quantity = max(1, current_quantity - 1)
+            view_product(chat_id, product_id, new_quantity)
+            
+        elif callback_data.startswith("add_") and callback_data.count("_") == 2:
+            parts = callback_data.split("_")
+            product_id = int(parts[1])
+            quantity = int(parts[2])
+            add_to_cart(chat_id, product_id, quantity)
+            
+        elif callback_data == "view_cart":
+            show_cart(chat_id)
+            
+        elif callback_data == "place_order":
+            process_order(chat_id)
+            
+        elif callback_data == "clear_cart":
+            if chat_id in user_data:
+                user_data[chat_id]["cart"] = []
+            lang = user_language.get(chat_id, "uz")
+            if lang == "uz":
+                send_message(chat_id, "🗑 Savat tozalandi", main_menu_with_language(chat_id))
+            else:
+                send_message(chat_id, "🗑 Корзина очищена", main_menu_with_language(chat_id))
+            
+        elif callback_data == "show_menu":
+            show_full_menu(chat_id)
+            
+        elif callback_data.startswith("category_"):
+            category_key = callback_data.split("_", 1)[1]
+            show_category(chat_id, category_key)
+            
+        elif callback_data.startswith("view_"):
+            product_id = int(callback_data.split("_")[1])
+            view_product(chat_id, product_id, 1)
+            
+        elif callback_data == "main_menu":
+            send_message(chat_id, "🏠 Asosiy menyu", main_menu_with_language(chat_id))
+            
+        elif callback_data.startswith("payment_done_"):
+            order_id = int(callback_data.split("_")[2])
+            lang = user_language.get(chat_id, "uz")
+            if lang == "uz":
+                text = f"""
+✅ <b>TO'LOV MA'LUMOTLARI QABUL QILINDI</b>
+
+📦 Buyurtma raqami: #{order_id}
+💳 Iltimos, chek skrinshotini yuboring.
+
+⏳ To'lov tasdiqlangach, buyurtmangiz tayyorlanadi.
+📞 Aloqa: +998 91 211 12 15
+"""
+            else:
+                text = f"""
+✅ <b>ИНФОРМАЦИЯ ОБ ОПЛАТЕ ПРИНЯТА</b>
+
+📦 Номер заказа: #{order_id}
+💳 Пожалуйста, отправьте скриншот чека.
+
+⏳ После подтверждения оплаты ваш заказ будет приготовлен.
+📞 Связь: +998 91 211 12 15
+"""
+            send_message(chat_id, text, main_menu_with_language(chat_id))
+            
+        elif callback_data.startswith("accept_"):
+            if str(chat_id) == ADMIN_ID:
+                order_id = int(callback_data.split("_")[1])
+                if order_id in orders_data:
+                    orders_data[order_id]["status"] = "qabul qilindi"
+                    user_id = orders_data[order_id]["user_id"]
+                    lang = user_language.get(user_id, "uz")
+                    if lang == "uz":
+                        send_message(user_id, f"✅ #{order_id} raqamli buyurtma qabul qilindi va tayyorlanmoqda!")
+                    else:
+                        send_message(user_id, f"✅ Заказ #{order_id} принят и готовится!")
+                    send_message(chat_id, f"✅ #{order_id} raqamli buyurtma qabul qilindi")
+            
+        elif callback_data.startswith("ready_"):
+            if str(chat_id) == ADMIN_ID:
+                order_id = int(callback_data.split("_")[1])
+                if order_id in orders_data:
+                    orders_data[order_id]["status"] = "tayyor"
+                    user_id = orders_data[order_id]["user_id"]
+                    lang = user_language.get(user_id, "uz")
+                    if lang == "uz":
+                        send_message(user_id, f"🎉 #{order_id} raqamli buyurtma tayyor! Yetkazib berilmoqda...")
+                    else:
+                        send_message(user_id, f"🎉 Заказ #{order_id} готов! Доставляется...")
+                    send_message(chat_id, f"✅ #{order_id} raqamli buyurtma tayyor deb belgilandi")
+            
+        elif callback_data.startswith("cancel_"):
+            if str(chat_id) == ADMIN_ID:
+                order_id = int(callback_data.split("_")[1])
+                if order_id in orders_data:
+                    orders_data[order_id]["status"] = "bekor qilindi"
+                    user_id = orders_data[order_id]["user_id"]
+                    lang = user_language.get(user_id, "uz")
+                    if lang == "uz":
+                        send_message(user_id, f"❌ #{order_id} raqamli buyurtma bekor qilindi. Iltimos, qayta urinib ko'ring.")
+                    else:
+                        send_message(user_id, f"❌ Заказ #{order_id} отменен. Пожалуйста, попробуйте снова.")
+                    send_message(chat_id, f"❌ #{order_id} raqamli buyurtma bekor qilindi")
+            
+        elif callback_data.startswith("contact_"):
+            if str(chat_id) == ADMIN_ID:
+                order_id = int(callback_data.split("_")[1])
+                if order_id in orders_data:
+                    user_id = orders_data[order_id]["user_id"]
+                    user_phone = orders_data[order_id]["user_phone"]
+                    send_message(chat_id, f"📞 #{order_id} raqamli buyurtma uchun mijoz telefon raqami: {user_phone}")
+            
+        elif callback_data.startswith("maps_"):
+            if str(chat_id) == ADMIN_ID:
+                order_id = int(callback_data.split("_")[1])
+                if order_id in orders_data:
+                    send_maps_links_to_admin(order_id)
+            
+        elif callback_data.startswith("cash_paid_"):
+            if str(chat_id) == ADMIN_ID:
+                order_id = int(callback_data.split("_")[2])
+                if order_id in orders_data:
+                    orders_data[order_id]["payment_status"] = "to'landi"
+                    orders_data[order_id]["status"] = "qabul qilindi"
+                    user_id = orders_data[order_id]["user_id"]
+                    lang = user_language.get(user_id, "uz")
+                    if lang == "uz":
+                        send_message(user_id, f"✅ #{order_id} raqamli buyurtma uchun to'lov qabul qilindi va buyurtma tayyorlanmoqda!")
+                    else:
+                        send_message(user_id, f"✅ Оплата для заказа #{order_id} получена и заказ готовится!")
+                    send_message(chat_id, f"✅ #{order_id} raqamli buyurtma uchun to'lov tasdiqlandi")
+                    
+        # Fikr-mulohaza callbacklari
+        elif callback_data.startswith("rate_"):
+            rating = int(callback_data.split("_")[1])
+            
+            if rating <= 3:
+                ask_service_issue(chat_id, rating)
+            else:
+                thank_for_feedback(chat_id, rating)
+
+        elif callback_data.startswith("issue_"):
+            parts = callback_data.split("_")
+            issue_type = parts[1]
+            rating = int(parts[2])
+            
+            issue_map = {
+                "delivery": "Yetkazib berish",
+                "quality": "Mahsulot sifati", 
+                "service": "Xodimlar xizmati",
+                "prices": "Narxlar",
+                "other": "Boshqa"
+            }
+            
+            issue = issue_map.get(issue_type, "Boshqa")
+            thank_for_feedback(chat_id, rating, issue)
+
+        elif callback_data == "feedback_back":
+            start_feedback(chat_id)
+            
+        elif callback_data == "call_restaurant":
+            lang = user_language.get(chat_id, "uz")
+            if lang == "uz":
+                send_message(chat_id, "📞 Qo'ng'iroq qilish uchun: +998 91 211 12 15")
+            else:
+                send_message(chat_id, "📞 Для звонка: +998 91 211 12 15")
+                    
+    except Exception as e:
+        print(f"Callback xatosi: {e}")
+        lang = user_language.get(chat_id, "uz")
+        if lang == "uz":
+            send_message(chat_id, "❌ Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.")
+        else:
+            send_message(chat_id, "❌ Произошла ошибка. Пожалуйста, попробуйте снова.")
+
+# ==================== QOLGAN FUNKSIYALAR (O'ZGARMAGAN) ====================
+
 def request_contact_and_location(chat_id):
     """Telefon raqam va lokatsiya so'rash"""
     request_contact(chat_id)
 
 def request_contact(chat_id):
     """Telefon raqam so'rash"""
-    # Oldingi ma'lumotlarni tozalash
     if chat_id in user_data:
         user_data[chat_id].pop("phone", None)
         user_data[chat_id].pop("location", None)
@@ -880,14 +1063,12 @@ def confirm_cash_payment(chat_id, order_id):
 📞 Связ: +998 91 211 12 15
 """
     
-    # Buyurtma holatini yangilash
     orders_data[order_id]["status"] = "qabul qilindi"
     orders_data[order_id]["payment_method"] = "naqd pul"
     orders_data[order_id]["payment_status"] = "kutilmoqda"
     
     send_message(chat_id, text, main_menu_with_language(chat_id))
     
-    # Adminga naqd to'lov haqida xabar
     admin_text = f"""
 💵 <b>NAQD TO'LOV - BUYURTMA #{order_id}</b>
 
@@ -915,7 +1096,6 @@ def create_maps_links(location, location_type):
     if location_type == "google_maps":
         if "http" in location:
             google_link = location
-            # Google Maps linkidan Yandex Maps linkini yaratish
             if "?q=" in location:
                 coords = location.split("?q=")[1]
                 yandex_link = f"https://yandex.com/maps/?text={coords}"
@@ -928,7 +1108,6 @@ def create_maps_links(location, location_type):
     elif location_type == "yandex_maps":
         if "http" in location:
             yandex_link = location
-            # Yandex Maps linkidan Google Maps linkini yaratish
             if "?text=" in location:
                 address = location.split("?text=")[1]
                 google_link = f"https://maps.google.com/?q={address}"
@@ -938,7 +1117,7 @@ def create_maps_links(location, location_type):
             google_link = f"https://maps.google.com/?q={location}"
             yandex_link = f"https://yandex.com/maps/?text={location}"
     
-    else:  # text location
+    else:
         google_link = f"https://maps.google.com/?q={location}"
         yandex_link = f"https://yandex.com/maps/?text={location}"
     
@@ -948,7 +1127,6 @@ def send_order_to_admin(order_id):
     """Buyurtmani adminga yuborish"""
     order = orders_data[order_id]
     
-    # Xarita linklarini yaratish
     google_link, yandex_link = create_maps_links(
         order["user_location"], 
         order["location_type"]
@@ -1030,7 +1208,6 @@ def process_order(chat_id):
             send_message(chat_id, "❌ Ваша корзина пуста")
         return
     
-    # Har safar telefon va lokatsiya so'rash
     request_contact_and_location(chat_id)
 
 def create_order_from_cart(chat_id):
@@ -1051,12 +1228,10 @@ def create_order_from_cart(chat_id):
             send_message(chat_id, "❌ Информация о телефоне или адресе недостаточна")
         return
     
-    # Buyurtmani saqlash
     global order_counter
     cart = user_data[chat_id]["cart"]
     total = sum(item['price'] for item in cart)
     
-    # 20% chegirma hisoblash
     discount_amount = total * DISCOUNT_PERCENT // 100
     total_with_discount = total - discount_amount
     total_with_delivery = total_with_discount + DELIVERY_PRICE
@@ -1080,13 +1255,8 @@ def create_order_from_cart(chat_id):
         "timestamp": get_uzbekistan_time().isoformat()
     }
     
-    # Savatni tozalash
     user_data[chat_id]["cart"] = []
-    
-    # To'lov usulini so'rash
     request_payment_method(chat_id)
-
-# ==================== FIKR-MULOHAZA TIZIMI ====================
 
 def start_feedback(chat_id):
     """Fikr-mulohaza qoldirishni boshlash"""
@@ -1169,7 +1339,6 @@ Rahmat! Sizning bahoingiz: {rating}/5
         
         text += "\nСпасибо за ваш отзыв!"
     
-    # Fikrni ma'lumotlar bazasiga saqlash
     if chat_id not in user_feedback:
         user_feedback[chat_id] = []
     
@@ -1180,8 +1349,6 @@ Rahmat! Sizning bahoingiz: {rating}/5
     })
     
     send_message(chat_id, text, main_menu_with_language(chat_id))
-
-# ==================== MA'LUMOTLAR VA BOG'LANISH ====================
 
 def show_info(chat_id):
     """Ma'lumotlar bo'limi"""
@@ -1300,185 +1467,6 @@ def change_language(chat_id):
     
     send_message(chat_id, text, keyboard)
 
-# ==================== CALLBACK QAYTA ISHLASH ====================
-
-def handle_callback(chat_id, callback_data):
-    """Callbacklarni qayta ishlash"""
-    try:
-        if callback_data.startswith("add_"):
-            product_id = int(callback_data.split("_")[1])
-            add_to_cart(chat_id, product_id)
-            
-        elif callback_data.startswith("add_qty_"):
-            parts = callback_data.split("_")
-            product_id = int(parts[2])
-            quantity = int(parts[3])
-            add_to_cart(chat_id, product_id, quantity)
-            
-        elif callback_data == "view_cart":
-            show_cart(chat_id)
-            
-        elif callback_data == "place_order":
-            process_order(chat_id)
-            
-        elif callback_data == "clear_cart":
-            if chat_id in user_data:
-                user_data[chat_id]["cart"] = []
-            lang = user_language.get(chat_id, "uz")
-            if lang == "uz":
-                send_message(chat_id, "🗑 Savat tozalandi", main_menu_with_language(chat_id))
-            else:
-                send_message(chat_id, "🗑 Корзина очищена", main_menu_with_language(chat_id))
-            
-        elif callback_data == "show_menu":
-            show_full_menu(chat_id)
-            
-        elif callback_data.startswith("category_"):
-            category_key = callback_data.split("_", 1)[1]
-            show_category(chat_id, category_key)
-            
-        elif callback_data.startswith("view_"):
-            product_id = int(callback_data.split("_")[1])
-            view_product(chat_id, product_id)
-            
-        elif callback_data == "main_menu":
-            send_message(chat_id, "🏠 Asosiy menyu", main_menu_with_language(chat_id))
-            
-        elif callback_data.startswith("payment_done_"):
-            order_id = int(callback_data.split("_")[2])
-            lang = user_language.get(chat_id, "uz")
-            if lang == "uz":
-                text = f"""
-✅ <b>TO'LOV MA'LUMOTLARI QABUL QILINDI</b>
-
-📦 Buyurtma raqami: #{order_id}
-💳 Iltimos, chek skrinshotini yuboring.
-
-⏳ To'lov tasdiqlangach, buyurtmangiz tayyorlanadi.
-📞 Aloqa: +998 91 211 12 15
-"""
-            else:
-                text = f"""
-✅ <b>ИНФОРМАЦИЯ ОБ ОПЛАТЕ ПРИНЯТА</b>
-
-📦 Номер заказа: #{order_id}
-💳 Пожалуйста, отправьте скриншот чека.
-
-⏳ После подтверждения оплаты ваш заказ будет приготовлен.
-📞 Связь: +998 91 211 12 15
-"""
-            send_message(chat_id, text, main_menu_with_language(chat_id))
-            
-        elif callback_data.startswith("accept_"):
-            if str(chat_id) == ADMIN_ID:
-                order_id = int(callback_data.split("_")[1])
-                if order_id in orders_data:
-                    orders_data[order_id]["status"] = "qabul qilindi"
-                    user_id = orders_data[order_id]["user_id"]
-                    lang = user_language.get(user_id, "uz")
-                    if lang == "uz":
-                        send_message(user_id, f"✅ #{order_id} raqamli buyurtma qabul qilindi va tayyorlanmoqda!")
-                    else:
-                        send_message(user_id, f"✅ Заказ #{order_id} принят и готовится!")
-                    send_message(chat_id, f"✅ #{order_id} raqamli buyurtma qabul qilindi")
-            
-        elif callback_data.startswith("ready_"):
-            if str(chat_id) == ADMIN_ID:
-                order_id = int(callback_data.split("_")[1])
-                if order_id in orders_data:
-                    orders_data[order_id]["status"] = "tayyor"
-                    user_id = orders_data[order_id]["user_id"]
-                    lang = user_language.get(user_id, "uz")
-                    if lang == "uz":
-                        send_message(user_id, f"🎉 #{order_id} raqamli buyurtma tayyor! Yetkazib berilmoqda...")
-                    else:
-                        send_message(user_id, f"🎉 Заказ #{order_id} готов! Доставляется...")
-                    send_message(chat_id, f"✅ #{order_id} raqamli buyurtma tayyor deb belgilandi")
-            
-        elif callback_data.startswith("cancel_"):
-            if str(chat_id) == ADMIN_ID:
-                order_id = int(callback_data.split("_")[1])
-                if order_id in orders_data:
-                    orders_data[order_id]["status"] = "bekor qilindi"
-                    user_id = orders_data[order_id]["user_id"]
-                    lang = user_language.get(user_id, "uz")
-                    if lang == "uz":
-                        send_message(user_id, f"❌ #{order_id} raqamli buyurtma bekor qilindi. Iltimos, qayta urinib ko'ring.")
-                    else:
-                        send_message(user_id, f"❌ Заказ #{order_id} отменен. Пожалуйста, попробуйте снова.")
-                    send_message(chat_id, f"❌ #{order_id} raqamli buyurtma bekor qilindi")
-            
-        elif callback_data.startswith("contact_"):
-            if str(chat_id) == ADMIN_ID:
-                order_id = int(callback_data.split("_")[1])
-                if order_id in orders_data:
-                    user_id = orders_data[order_id]["user_id"]
-                    user_phone = orders_data[order_id]["user_phone"]
-                    send_message(chat_id, f"📞 #{order_id} raqamli buyurtma uchun mijoz telefon raqami: {user_phone}")
-            
-        elif callback_data.startswith("maps_"):
-            if str(chat_id) == ADMIN_ID:
-                order_id = int(callback_data.split("_")[1])
-                if order_id in orders_data:
-                    send_maps_links_to_admin(order_id)
-            
-        elif callback_data.startswith("cash_paid_"):
-            if str(chat_id) == ADMIN_ID:
-                order_id = int(callback_data.split("_")[2])
-                if order_id in orders_data:
-                    orders_data[order_id]["payment_status"] = "to'landi"
-                    orders_data[order_id]["status"] = "qabul qilindi"
-                    user_id = orders_data[order_id]["user_id"]
-                    lang = user_language.get(user_id, "uz")
-                    if lang == "uz":
-                        send_message(user_id, f"✅ #{order_id} raqamli buyurtma uchun to'lov qabul qilindi va buyurtma tayyorlanmoqda!")
-                    else:
-                        send_message(user_id, f"✅ Оплата для заказа #{order_id} получена и заказ готовится!")
-                    send_message(chat_id, f"✅ #{order_id} raqamli buyurtma uchun to'lov tasdiqlandi")
-                    
-        # Fikr-mulohaza callbacklari
-        elif callback_data.startswith("rate_"):
-            rating = int(callback_data.split("_")[1])
-            
-            if rating <= 3:
-                ask_service_issue(chat_id, rating)
-            else:
-                thank_for_feedback(chat_id, rating)
-
-        elif callback_data.startswith("issue_"):
-            parts = callback_data.split("_")
-            issue_type = parts[1]
-            rating = int(parts[2])
-            
-            issue_map = {
-                "delivery": "Yetkazib berish",
-                "quality": "Mahsulot sifati", 
-                "service": "Xodimlar xizmati",
-                "prices": "Narxlar",
-                "other": "Boshqa"
-            }
-            
-            issue = issue_map.get(issue_type, "Boshqa")
-            thank_for_feedback(chat_id, rating, issue)
-
-        elif callback_data == "feedback_back":
-            start_feedback(chat_id)
-            
-        elif callback_data == "call_restaurant":
-            lang = user_language.get(chat_id, "uz")
-            if lang == "uz":
-                send_message(chat_id, "📞 Qo'ng'iroq qilish uchun: +998 91 211 12 15")
-            else:
-                send_message(chat_id, "📞 Для звонка: +998 91 211 12 15")
-                    
-    except Exception as e:
-        print(f"Ошибка callback: {e}")
-        lang = user_language.get(chat_id, "uz")
-        if lang == "uz":
-            send_message(chat_id, "❌ Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.")
-        else:
-            send_message(chat_id, "❌ Произошла ошибка. Пожалуйста, попробуйте снова.")
-
 # ==================== UPTIME ROBOT ====================
 
 def keep_alive():
@@ -1533,7 +1521,6 @@ def run_bot():
                             text = message.get("text", "")
                             
                             if text == "/start":
-                                # Foydalanuvchi tilini sozlash
                                 if chat_id not in user_language:
                                     user_language[chat_id] = "uz"
                                 language_selection(chat_id)
@@ -1601,9 +1588,7 @@ def run_bot():
                             elif text == "🏠 Asosiy menyu" or text == "🏠 Главное меню":
                                 send_message(chat_id, "🏠 Asosiy menyu", main_menu_with_language(chat_id))
                             
-                            # To'lov usullari
                             elif text == "💳 Karta orqali to'lash" or text == "💳 Оплата картой":
-                                # Oxirgi buyurtmani topish
                                 user_orders = [order_id for order_id, order in orders_data.items() if order["user_id"] == chat_id and order["status"] == "yangi"]
                                 if user_orders:
                                     last_order_id = max(user_orders)
@@ -1618,7 +1603,6 @@ def run_bot():
                                         send_message(chat_id, "❌ Активный заказ не найден")
                             
                             elif text == "💵 Naqd pul" or text == "💵 Наличные":
-                                # Oxirgi buyurtmani topish
                                 user_orders = [order_id for order_id, order in orders_data.items() if order["user_id"] == chat_id and order["status"] == "yangi"]
                                 if user_orders:
                                     last_order_id = max(user_orders)
@@ -1632,7 +1616,6 @@ def run_bot():
                                     else:
                                         send_message(chat_id, "❌ Активный заказ не найден")
                             
-                            # Telefon qabul qilish
                             elif "contact" in message:
                                 contact = message["contact"]
                                 phone = contact.get("phone_number", "")
@@ -1646,10 +1629,8 @@ def run_bot():
                                 else:
                                     send_message(chat_id, f"✅ Номер телефона принят: {phone}")
                                 
-                                # Lokatsiya so'rash
                                 request_location(chat_id)
                             
-                            # Google Maps lokatsiya qabul qilish
                             elif "location" in message:
                                 location = message["location"]
                                 lat = location["latitude"]
@@ -1666,10 +1647,8 @@ def run_bot():
                                 else:
                                     send_message(chat_id, f"✅ Адрес принят!\n📍 Google Maps")
                                 
-                                # Buyurtma yaratish
                                 create_order_from_cart(chat_id)
                             
-                            # Yandex Maps linkini qabul qilish
                             elif text == "🌐 Yandex Maps havolasini yuborish" or text == "🌐 Отправить Yandex Maps ссылку":
                                 lang = user_language.get(chat_id, "uz")
                                 if lang == "uz":
@@ -1677,7 +1656,6 @@ def run_bot():
                                 else:
                                     send_message(chat_id, "🌐 Пожалуйста, отправьте вашу ссылку Yandex Maps:")
                             
-                            # Xarita linklarini qabul qilish
                             elif "maps.google.com" in text or "goo.gl/maps" in text:
                                 if chat_id not in user_data:
                                     user_data[chat_id] = {}
@@ -1689,7 +1667,6 @@ def run_bot():
                                 else:
                                     send_message(chat_id, f"✅ Адрес Google Maps принят!")
                                 
-                                # Buyurtma yaratish
                                 create_order_from_cart(chat_id)
                             
                             elif "yandex" in text and "maps" in text:
@@ -1703,10 +1680,8 @@ def run_bot():
                                 else:
                                     send_message(chat_id, f"✅ Адрес Yandex Maps принят!")
                                 
-                                # Buyurtma yaratish
                                 create_order_from_cart(chat_id)
                             
-                            # Oddiy matn manzilni qabul qilish
                             elif text and len(text) > 10 and text not in ["🍽 Mazali Menyu", "🛒 Savat", "📦 Mening buyurtmalarim", "ℹ️ Ma'lumotlar", "✍️ Fikr qoldirish", "☎️ Bog'lanish", "👑 Admin Panel", "🏠 Asosiy menyu", "💳 Karta orqali to'lash", "💵 Naqd pul", "📍 Google Maps orqali", "🌐 Yandex Maps havolasini yuborish", "🍽 Вкусное Меню", "🛒 Корзина", "📦 Мои заказы", "ℹ️ Информация", "✍️ Оставить отзыв", "☎️ Контакты", "💳 Оплата картой", "💵 Наличные", "📍 Через Google Maps", "🌐 Отправить Yandex Maps ссылку"]:
                                 if chat_id not in user_data:
                                     user_data[chat_id] = {}
@@ -1718,7 +1693,6 @@ def run_bot():
                                 else:
                                     send_message(chat_id, f"✅ Адрес принят!\n📍 {text}")
                                 
-                                # Buyurtma yaratish
                                 create_order_from_cart(chat_id)
                         
                         elif "callback_query" in update:
@@ -1731,18 +1705,15 @@ def run_bot():
             time.sleep(1)
             
         except Exception as e:
-            print(f"Ошибка: {e}")
+            print(f"Xato: {e}")
             time.sleep(3)
 
 if __name__ == "__main__":
-    # Keep-alive ni ishga tushirish
     keep_alive_thread = Thread(target=start_keep_alive, daemon=True)
     keep_alive_thread.start()
     
-    # Asosiy botni ishga tushirish
     bot_thread = Thread(target=run_bot, daemon=True)
     bot_thread.start()
     
-    # Flask server
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port, debug=False)
