@@ -877,7 +877,7 @@ def confirm_cash_payment(chat_id, order_id):
 🎉 Ваш заказ принят и готовится!
 ⏰ Время приготовления: {PREPARATION_TIME}
 
-📞 Связь: +998 91 211 12 15
+📞 Связ: +998 91 211 12 15
 """
     
     # Buyurtma holatini yangilash
