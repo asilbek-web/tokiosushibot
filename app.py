@@ -91,7 +91,7 @@ menu_data = {
         "products": [
             {"id": 22, "name": "Сет Токио 48шт", "price": 390000, "description": "Дракон ролл 8шт + Филадельфия классик 8шт + Темпура Лосось 8шт + Краб Запеченый 16шт + Калифорния Лосось 8шт", "prep_time": "40 daqiqa", "image_url": "https://ibb.co/3ycXwTn3", "composition": ["Дракон ролл", "Филадельфия классик", "Темпура Лосось", "Краб Запеченый", "Калифорния Лосось"]},
             {"id": 23, "name": "Сет Ямамото 32шт", "price": 290000, "description": "Филадельфия классик 8шт + Калифорния классик 8шт + Ролл с креветками 8шт + Ролл Чука 8шт", "prep_time": "35 daqiqa", "image_url": "https://ibb.co/DHsDJyTf", "composition": ["Филадельфия классик", "Калифорния классик", "Ролл с креветками", "Ролл Чука"]},
-            {"id": 24, "name": "Сet Идеал 32шт", "price": 260000, "description": "Филадельфия классик 8шт + Калифорния Кунсут 8шт + Калифорния Черный 8шт + Дракон ролл 8шт", "prep_time": "32 daqiqa", "image_url": "https://ibb.co/bMnZDM8v", "composition": ["Филадельфия классик", "Калифорния Кунсут", "Калифорния Черный", "Дракон ролл"]},
+            {"id": 24, "name": "Сет Идеал 32шт", "price": 260000, "description": "Филадельфия классик 8шт + Калифорния Кунсут 8шт + Калифорния Черный 8шт + Дракон ролл 8шт", "prep_time": "32 daqiqa", "image_url": "https://ibb.co/bMnZDM8v", "composition": ["Филадельфия классик", "Калифорния Кунсут", "Калифорния Черный", "Дракон ролл"]},
             {"id": 25, "name": "Сет Окей 24шт", "price": 200000, "description": "Филадельфия классик 8шт + Запеченый лосось 8шт + Темпура лосось 8шт", "prep_time": "30 daqiqa", "image_url": "https://ibb.co/YFfW3pFJ", "composition": ["Филадельфия классик", "Запеченый лосось", "Темпура лосось"]},
             {"id": 26, "name": "Сет Сакура 24шт", "price": 180000, "description": "Филадельфия классик 4шт + Канада Голд 4шт + Мини ролл лосось 8шт + Темпура лосось 8шт", "prep_time": "28 daqiqa", "image_url": "https://ibb.co/FLrCy969", "composition": ["Филадельфия классик", "Канада Голд", "Мини ролл лосось", "Темпура лосось"]},
             {"id": 27, "name": "Сет Классический 32шт", "price": 150000, "description": "Мини ролл лосось 8шт + Мини ролл огурец 8шт + Мини ролл тунец 8шт + Мини ролл краб 8шт", "prep_time": "25 daqiqa", "image_url": "https://ibb.co/Q3B6yMxV", "composition": ["Мини ролл лосось", "Мини ролл огурец", "Мини ролл тунец", "Мини ролл краб"]}
@@ -330,7 +330,7 @@ def send_welcome_message(chat_id):
     send_message(chat_id, text, main_menu_with_language(chat_id))
 
 def show_full_menu(chat_id):
-    """YANGI: To'liq menyuni PASTKI QATORDAGI TUGMALAR bilan ko'rsatish"""
+    """YANGI: To'liq menyuni REPLY KEYBOARD tugmalar bilan ko'rsatish"""
     lang = user_language.get(chat_id, "uz")
     
     if lang == "uz":
@@ -343,6 +343,17 @@ Nimadan boshlaymiz?
 
 Ovqatga buyurtma berish uchun biror kategoriya tanlang:
 """
+        keyboard = {
+            "keyboard": [
+                ["🍣 ХОЛОДНЫЕ РОЛЛЫ", "🔥 ЗАПЕЧЕННЫЕ ФИРМЕННЫЕ РОЛЛЫ ОТ:"],
+                ["⚡ ЖАРЕНЫЕ РОЛЛЫ", "🎎 СЕТЛАР"],
+                ["🍱 СУШИ ВА ГУНКАН", "🍜 ГОРЯЧАЯ ЕДА"],
+                ["🍕 ПИЦЦЕЙ С БУРГЕР", "🥤 ИЧИМЛИКЛАР"],
+                ["🛒 Savatni ko'rish", "📋 Bosh menyu"],
+                ["🏠 Asosiy menyu"]
+            ],
+            "resize_keyboard": True
+        }
     else:
         text = """
 🍽 <b>Вкусное Меню</b>
@@ -353,23 +364,22 @@ Ovqatga buyurtma berish uchun biror kategoriya tanlang:
 
 Выберите категорию для заказа еды:
 """
-    
-    # YANGI: Kategoriyalarni PASTKI QATORGA joylash
-    keyboard = {
-        "keyboard": [
-            ["🍣 ХОЛОДНЫЕ РОЛЛЫ", "🔥 ЗАПЕЧЕННЫЕ ФИРМЕННЫЕ РОЛЛЫ ОТ:"],
-            ["⚡ ЖАРЕНЫЕ РОЛЛЫ", "🎎 СЕТЛАР"],
-            ["🍱 СУШИ ВА ГУНКАН", "🍜 ГОРЯЧАЯ ЕДА"],
-            ["🍕 ПИЦЦЕЙ С БУРГЕР", "🥤 ИЧИМЛИКЛАР"],
-            ["🛒 Savatni ko'rish", "🏠 Asosiy menyu"]
-        ],
-        "resize_keyboard": True
-    }
+        keyboard = {
+            "keyboard": [
+                ["🍣 ХОЛОДНЫЕ РОЛЛЫ", "🔥 ЗАПЕЧЕННЫЕ ФИРМЕННЫЕ РОЛЛЫ ОТ:"],
+                ["⚡ ЖАРЕНЫЕ РОЛЛЫ", "🎎 СЕТЛАР"],
+                ["🍱 СУШИ ВА ГУНКАН", "🍜 ГОРЯЧАЯ ЕДА"],
+                ["🍕 ПИЦЦЕЙ С БУРГЕР", "🥤 ИЧИМЛИКЛАР"],
+                ["🛒 Корзина", "📋 Главное меню"],
+                ["🏠 Главное меню"]
+            ],
+            "resize_keyboard": True
+        }
     
     send_message(chat_id, text, keyboard)
 
 def show_category(chat_id, category_key):
-    """Kategoriyani ko'rsatish - INLINE tugmalar bilan"""
+    """Kategoriyani ko'rsatish - REPLY KEYBOARD bilan"""
     category = menu_data[category_key]
     lang = user_language.get(chat_id, "uz")
     
@@ -390,32 +400,40 @@ Ovqatga buyurtma berish uchun biror mahsulot tanlang:
 Выберите любой продукт для заказа еды:
 """
     
-    keyboard = {"inline_keyboard": []}
+    # Mahsulotlarni guruhlab chiqaramiz (har qatorda 2 ta)
+    products = category["products"]
+    keyboard_rows = []
     
-    # Mahsulotlar - faqat nomlari
-    for product in category["products"]:
-        keyboard["inline_keyboard"].append([
-            {"text": product['name'], "callback_data": f"view_{product['id']}"}
-        ])
+    for i in range(0, len(products), 2):
+        row = []
+        if i < len(products):
+            row.append(products[i]['name'])
+        if i + 1 < len(products):
+            row.append(products[i + 1]['name'])
+        if row:
+            keyboard_rows.append(row)
     
     # Navigatsiya tugmalari
     if lang == "uz":
-        keyboard["inline_keyboard"].extend([
-            [{"text": "🛒 Savatni ko'rish", "callback_data": "view_cart"}],
-            [{"text": "📋 Bosh menyu", "callback_data": "show_menu"}],
-            [{"text": "🏠 Asosiy menyu", "callback_data": "main_menu"}]
+        keyboard_rows.extend([
+            ["🛒 Savatni ko'rish"],
+            ["📋 Bosh menyu", "🏠 Asosiy menyu"]
         ])
     else:
-        keyboard["inline_keyboard"].extend([
-            [{"text": "🛒 Корзина", "callback_data": "view_cart"}],
-            [{"text": "📋 Главное меню", "callback_data": "show_menu"}],
-            [{"text": "🏠 Главное меню", "callback_data": "main_menu"}]
+        keyboard_rows.extend([
+            ["🛒 Корзина"],
+            ["📋 Главное меню", "🏠 Главное меню"]
         ])
+    
+    keyboard = {
+        "keyboard": keyboard_rows,
+        "resize_keyboard": True
+    }
     
     send_message(chat_id, text, keyboard)
 
 def view_product(chat_id, product_id, quantity=1):
-    """Mahsulotni ko'rsatish - yangi miqdor tizimi"""
+    """Mahsulotni ko'rsatish - INLINE tugmalar bilan"""
     # Mahsulotni topish
     product = None
     category_key = None
@@ -630,7 +648,7 @@ def show_cart(chat_id):
 # ==================== YANGI CALLBACK HANDLER ====================
 
 def handle_callback(chat_id, callback_data):
-    """Callbacklarni qayta ishlash - yangi miqdor tizimi"""
+    """Callbacklarni qayta ishlash"""
     try:
         if callback_data == "ignore":
             return
@@ -819,7 +837,7 @@ def handle_callback(chat_id, callback_data):
         else:
             send_message(chat_id, "❌ Произошла ошибка. Пожалуйста, попробуйте снова.")
 
-# ==================== QOLGAN FUNKSIYALAR (O'ZGARMAGAN) ====================
+# ==================== QOLGAN FUNKSIYALAR ====================
 
 def request_contact_and_location(chat_id):
     """Telefon raqam va lokatsiya so'rash"""
@@ -1524,11 +1542,11 @@ def run_bot():
                             
                             elif text == "🇺🇿 O'zbekcha":
                                 user_language[chat_id] = "uz"
-                                send_message(chat_id, "✅ Til o'zbekchaga o'zgartirildi", main_menu_with_language(chat_id))
+                                send_welcome_message(chat_id)
                                 
                             elif text == "🇷🇺 Русский":
                                 user_language[chat_id] = "ru"
-                                send_message(chat_id, "✅ Язык изменен на русский", main_menu_with_language(chat_id))
+                                send_welcome_message(chat_id)
                             
                             elif text == "🍽 Mazali Menyu" or text == "🍽 Вкусное Меню":
                                 show_full_menu(chat_id)
@@ -1612,6 +1630,38 @@ def run_bot():
                                         send_message(chat_id, "❌ Faol buyurtma topilmadi")
                                     else:
                                         send_message(chat_id, "❌ Активный заказ не найден")
+                            
+                            # YANGI: Kategoriyalarni qayta ishlash
+                            elif text in ["🍣 ХОЛОДНЫЕ РОЛЛЫ", "🔥 ЗАПЕЧЕННЫЕ ФИРМЕННЫЕ РОЛЛЫ ОТ:", "⚡ ЖАРЕНЫЕ РОЛЛЫ", 
+                                        "🎎 СЕТЛАР", "🍱 СУШИ ВА ГУНКАН", "🍜 ГОРЯЧАЯ ЕДА", 
+                                        "🍕 ПИЦЦЕЙ С БУРГЕР", "🥤 ИЧИМЛИКЛАР"]:
+                                category_map = {
+                                    "🍣 ХОЛОДНЫЕ РОЛЛЫ": "holodnye_rolly",
+                                    "🔥 ЗАПЕЧЕННЫЕ ФИРМЕННЫЕ РОЛЛЫ ОТ:": "zapechennye",
+                                    "⚡ ЖАРЕНЫЕ РОЛЛЫ": "jarennye_rolly",
+                                    "🎎 СЕТЛАР": "sety",
+                                    "🍱 СУШИ ВА ГУНКАН": "sushi_gunkan",
+                                    "🍜 ГОРЯЧАЯ ЕДА": "goryachaya_eda",
+                                    "🍕 ПИЦЦЕЙ С БУРГЕР": "pizza_burger",
+                                    "🥤 ИЧИМЛИКЛАР": "napitki"
+                                }
+                                category_key = category_map.get(text)
+                                if category_key:
+                                    show_category(chat_id, category_key)
+                            
+                            # YANGI: Mahsulotlarni qayta ishlash
+                            elif any(text == product['name'] for category in menu_data.values() for product in category['products']):
+                                for category in menu_data.values():
+                                    for product in category['products']:
+                                        if text == product['name']:
+                                            view_product(chat_id, product['id'], 1)
+                                            break
+                            
+                            elif text == "🛒 Savatni ko'rish" or text == "🛒 Корзина":
+                                show_cart(chat_id)
+                            
+                            elif text == "📋 Bosh menyu" or text == "📋 Главное меню":
+                                show_full_menu(chat_id)
                             
                             elif "contact" in message:
                                 contact = message["contact"]
