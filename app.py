@@ -1287,7 +1287,7 @@ Agar xizmatlarimizni baholab, bizga yordam bersangiz, sizga minnatdor bo'lamiz!
 """
     else:
         text = """
-Спасибо, что выбрали Sushi Yummy!
+Спасибо, что выбрали Tokio sushi!
 
 Если вы оцените наши услуги и поможете нам, мы будем благодарны вам!
 
