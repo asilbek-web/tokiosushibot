@@ -137,7 +137,7 @@ menu_data = {
             {"id": 51, "name": "Греческий салат", "price": 50000, "description": "Rukola bilan salat", "prep_time": "8 daqiqa", "image_url": "https://ibb.co/Nd38hmJQ", "composition": ["Овощи", "Сыр Фета", "Оливки"]},
             {"id": 52, "name": "Салат Руккола", "price": 40000, "description": "Rukola salati", "prep_time": "8 daqiqa", "image_url": "https://ibb.co/B5NY9D39", "composition": ["Руккола", "Помидоры", "Сыр"]},
             {"id": 53, "name": "Мужской Каприз", "price": 40000, "description": "Kapriz salati", "prep_time": "8 daqiqa", "image_url": "https://ibb.co/b5jt6yRR", "composition": ["Овощи", "Мясо", "Соус"]},
-            {"id": 54, "name": "Чука Салат", "price": 35000, "description": "Fuka salati", "prep_time": "8 daqiqa", "image_url": "https://ibb.co/5xsnpW3c", "composition": ["Водоросли Чука", "Кунжут"]},
+            {"id": 54, "name": "Чука СалаT", "price": 35000, "description": "Fuka salati", "prep_time": "8 daqiqa", "image_url": "https://ibb.co/5xsnpW3c", "composition": ["Водоросли Чука", "Кунжут"]},
             {"id": 55, "name": "Тар-Тар", "price": 15000, "description": "Tar-Tar sousi bilan", "prep_time": "5 daqiqa", "image_url": "https://ibb.co/Q3dFbp3X", "composition": ["Соус Тар-Тар"]},
             {"id": 56, "name": "Куринние Рамэн", "price": 45000, "description": "Oddiy ramen", "prep_time": "18 daqiqa", "image_url": "https://ibb.co/5xYJbRfc", "composition": ["Лапша", "Бульон", "Овощи"]}
         ]
