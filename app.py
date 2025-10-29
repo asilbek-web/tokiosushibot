@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-print(" TOKIO SUSHI PREMIUM BOT yuklanmoqda...")
+print(" TOKIO SUSHI. PREMIUM BOT yuklanmoqda...")
 
 # Sozlamalar
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "8132196767:AAFcTMKbjP6CEsigfR-SJ-sdxbVwH2AsxSM")
