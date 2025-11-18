@@ -123,7 +123,7 @@ menu_data = {
         ]
     },
     "goryachaya_eda": {
-        "name": "🍜 ГОРЯЧАЯ ЕДА",
+        "name": "🍜 ГОРЯЧАЯ eda",
         "emoji": "🍜",
         "products": [
             {"id": 41, "name": "Рамэн Классик", "price": 80000, "description": "An'anaviy yapon rameni", "prep_time": "20 daqiqa", "image_url": "https://ibb.co/57sXdTZ", "composition": ["Лапша", "Бульон", "Яйцо", "Свинина"]},
